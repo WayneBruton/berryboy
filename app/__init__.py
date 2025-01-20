@@ -9,9 +9,12 @@ def create_app():
     # Load environment variables
     load_dotenv()
     
+    # Get base directory
+    basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    
     # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///berryboy.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', f'sqlite:///{os.path.join(basedir, "berryboy.db")}')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize extensions with app

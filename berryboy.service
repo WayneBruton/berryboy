@@ -1,0 +1,13 @@
+[Unit]
+Description=BerryBoy Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/BerryBoy
+Environment="PATH=/path/to/BerryBoy/venv/bin"
+ExecStart=/path/to/BerryBoy/venv/bin/gunicorn -c gunicorn.conf.py run:app
+
+[Install]
+WantedBy=multi-user.target
