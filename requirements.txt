@@ -1,18 +1,33 @@
-Flask==2.0.1
-Flask-SQLAlchemy==3.0.2
-Flask-Login==0.6.2
+# Core Flask and Extensions
+Flask==3.0.1
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
 Flask-Mail==0.9.1
-Flask-WTF==1.1.1
-Flask-Migrate==4.0.4
-Werkzeug==2.0.3
-SQLAlchemy==2.0.23
-requests==2.31.0
-Pillow==10.1.0
-stripe==5.4.0
-python-dotenv==0.19.0
-bcrypt==4.1.2
-email-validator==2.1.0.post1
-flask-admin==1.6.1
-gunicorn==20.1.0
+Flask-WTF==1.2.1
+Flask-Migrate==4.0.5
+Flask-Admin==1.6.1
+
+# Database
+SQLAlchemy==2.0.25
+psycopg2-binary==2.9.9
 alembic==1.13.1
-psycopg2-binary==2.9.5
+
+# Web Server
+gunicorn==21.2.0
+Werkzeug==3.0.1
+
+# Utils
+python-dotenv==1.0.0
+email-validator==2.1.0.post1
+bcrypt==4.1.2
+Pillow==10.2.0
+requests==2.31.0
+
+# Payment Processing
+stripe==7.11.0
+
+# Development Tools
+pytest==7.4.4
+pytest-cov==4.1.0
+black==23.12.1
+flake8==7.0.0
