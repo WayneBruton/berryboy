@@ -1,12 +1,28 @@
 from app import create_app, db
 from app.models import Product, Category
 from flask_migrate import upgrade
+import time
 
 def deploy():
     """Run deployment tasks."""
     app = create_app()
     
     with app.app_context():
+        # Wait for database to be ready (useful for render.com cold starts)
+        max_retries = 5
+        for i in range(max_retries):
+            try:
+                # Try to connect to the database
+                db.session.execute('SELECT 1')
+                print("Database connection successful!")
+                break
+            except Exception as e:
+                if i == max_retries - 1:
+                    print(f"Failed to connect to database after {max_retries} attempts")
+                    raise
+                print(f"Database connection attempt {i + 1} failed, retrying in 5 seconds...")
+                time.sleep(5)
+        
         # Create or upgrade database
         db.create_all()
         
@@ -15,6 +31,7 @@ def deploy():
         
         # Check if we need to initialize data
         if Category.query.count() == 0:
+            print("Initializing categories...")
             # Create categories
             categories = [
                 Category(name='Fresh Berries', description='Fresh, handpicked berries'),
@@ -33,6 +50,7 @@ def deploy():
             
             # Create products only if they don't exist
             if Product.query.count() == 0:
+                print("Initializing products...")
                 products = [
                     Product(
                         name='Fresh Strawberries',
