@@ -3,15 +3,15 @@
 {% block content %}
 <div class="about-page">
     <!-- Hero Section -->
-    <div class="about-hero py-5 mb-5 text-center text-white" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for('static', filename='img/about/farm.jpg') }}') center/cover no-repeat fixed;">
+    <div class="about-hero py-5 mb-5 text-center text-white position-relative" style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ url_for('static', filename='img/about/farm.jpg') }}') center/cover no-repeat;">
         <div class="container py-5">
-            <h1 class="display-4 fw-bold mb-4">Our Berry Story</h1>
-            <p class="lead mb-0">From Farm to Table: Fresh, Delicious, and Sustainable</p>
+            <h1 class="display-4 fw-bold mb-4 position-relative" style="z-index: 2;">Our Berry Story</h1>
+            <p class="lead mb-0 position-relative" style="z-index: 2;">From Farm to Table: Fresh, Delicious, and Sustainable</p>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="container py-5">
+    <div class="container py-5 position-relative" style="z-index: 3; background: white;">
         <!-- Our Mission -->
         <div class="row align-items-center mb-5">
             <div class="col-md-6">
@@ -20,7 +20,7 @@
                 <p>Our mission is to connect berry lovers with the finest locally sourced berries while supporting sustainable farming practices and our local farming communities.</p>
             </div>
             <div class="col-md-6">
-                <img src="{{ url_for('static', filename='img/about/mission.jpg') }}" alt="Our Mission" class="img-fluid rounded shadow">
+                <img src="{{ url_for('static', filename='img/about/farm.jpg') }}" alt="Our Mission" class="img-fluid rounded shadow">
             </div>
         </div>
 
@@ -66,21 +66,27 @@
             </div>
             <div class="col-md-4 mb-4">
                 <div class="team-member text-center">
-                    <img src="{{ url_for('static', filename='img/team/founder.jpg') }}" alt="Founder" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <div class="team-image-container mb-3 mx-auto">
+                        <img src="{{ url_for('static', filename='img/team/founder.jpg') }}" alt="Founder" class="rounded-circle">
+                    </div>
                     <h3 class="h4">John Berry</h3>
                     <p class="text-muted">Founder & CEO</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
                 <div class="team-member text-center">
-                    <img src="{{ url_for('static', filename='img/team/farmer.jpg') }}" alt="Head Farmer" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <div class="team-image-container mb-3 mx-auto">
+                        <img src="{{ url_for('static', filename='img/team/farmer.jpg') }}" alt="Head Farmer" class="rounded-circle">
+                    </div>
                     <h3 class="h4">Sarah Green</h3>
                     <p class="text-muted">Head of Farming Operations</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
                 <div class="team-member text-center">
-                    <img src="{{ url_for('static', filename='img/team/quality.jpg') }}" alt="Quality Manager" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <div class="team-image-container mb-3 mx-auto">
+                        <img src="{{ url_for('static', filename='img/team/quality.jpg') }}" alt="Quality Manager" class="rounded-circle">
+                    </div>
                     <h3 class="h4">Mike Thompson</h3>
                     <p class="text-muted">Quality Assurance Manager</p>
                 </div>
@@ -91,37 +97,58 @@
 
 <style>
 .about-hero {
+    min-height: 400px;
+    overflow: hidden;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    z-index: 1;
+}
+
+.team-image-container {
+    width: 200px;
+    height: 200px;
     position: relative;
-    background-attachment: fixed;
-}
-
-.team-member img {
+    overflow: hidden;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
 }
 
-.team-member:hover img {
-    transform: scale(1.05);
-}
-
-.card {
+.team-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     transition: transform 0.3s ease;
 }
 
-.card:hover {
+.team-member:hover .team-image-container {
     transform: translateY(-5px);
 }
 
-.about-page h2 {
+.team-member h3 {
+    margin-top: 1rem;
     color: #2c3e50;
-    font-weight: 600;
 }
 
-.about-page .lead {
-    color: #34495e;
+.team-member p {
+    color: #7f8c8d;
 }
 
 .about-page .card {
     border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.about-page .card:hover {
+    transform: translateY(-5px);
 }
 
 .about-page .card i {
