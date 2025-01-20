@@ -1,48 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-6">
-            <h1 class="mb-4">About BerryBoy</h1>
-            <p class="lead">We're passionate about bringing the finest berries straight from local farms to your table.</p>
-            
-            <div class="mb-4">
-                <h3>Our Story</h3>
-                <p>Founded in 2024, BerryBoy started with a simple mission: to make premium quality berries accessible to everyone. We work directly with local farmers to ensure the freshest produce while supporting sustainable farming practices.</p>
+<div class="about-page">
+    <!-- Hero Section -->
+    <div class="about-hero py-5 mb-5 text-center text-white" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for('static', filename='img/about/farm.jpg') }}') center/cover no-repeat fixed;">
+        <div class="container py-5">
+            <h1 class="display-4 fw-bold mb-4">Our Berry Story</h1>
+            <p class="lead mb-0">From Farm to Table: Fresh, Delicious, and Sustainable</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <!-- Our Mission -->
+        <div class="row align-items-center mb-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">Our Mission</h2>
+                <p class="lead">At BerryBoy, we're passionate about delivering the freshest, highest-quality berries straight to your door.</p>
+                <p>Our mission is to connect berry lovers with the finest locally sourced berries while supporting sustainable farming practices and our local farming communities.</p>
             </div>
-            
-            <div class="mb-4">
-                <h3>Our Promise</h3>
-                <ul class="list-unstyled">
-                    <li>✓ Fresh, hand-picked berries</li>
-                    <li>✓ Sustainable farming practices</li>
-                    <li>✓ Support for local farmers</li>
-                    <li>✓ Premium quality guarantee</li>
-                </ul>
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='img/about/mission.jpg') }}" alt="Our Mission" class="img-fluid rounded shadow">
             </div>
         </div>
-        
-        <div class="col-lg-6">
-            <div class="about-image-container">
-                <img src="{{ url_for('static', filename='img/about/farm.jpg') }}" alt="Berry Farm" class="img-fluid rounded shadow">
+
+        <!-- Values Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center mb-4">
+                <h2>Our Values</h2>
             </div>
-            
-            <div class="mt-4">
-                <h3>Why Choose Us?</h3>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="feature-card p-3 bg-light rounded">
-                            <h4>Quality</h4>
-                            <p>Only the finest berries make it to your table</p>
-                        </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-leaf fa-3x text-success mb-3"></i>
+                        <h3 class="h4">Sustainability</h3>
+                        <p>We're committed to environmentally friendly farming practices and packaging.</p>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="feature-card p-3 bg-light rounded">
-                            <h4>Freshness</h4>
-                            <p>From farm to door within 24 hours</p>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                        <h3 class="h4">Quality</h3>
+                        <p>Only the finest, freshest berries make it into our boxes.</p>
                     </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
+                        <h3 class="h4">Community</h3>
+                        <p>Supporting local farmers and creating lasting relationships.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center mb-4">
+                <h2>Meet Our Team</h2>
+                <p class="lead">The passionate people behind BerryBoy</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="team-member text-center">
+                    <img src="{{ url_for('static', filename='img/team/founder.jpg') }}" alt="Founder" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <h3 class="h4">John Berry</h3>
+                    <p class="text-muted">Founder & CEO</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="team-member text-center">
+                    <img src="{{ url_for('static', filename='img/team/farmer.jpg') }}" alt="Head Farmer" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <h3 class="h4">Sarah Green</h3>
+                    <p class="text-muted">Head of Farming Operations</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="team-member text-center">
+                    <img src="{{ url_for('static', filename='img/team/quality.jpg') }}" alt="Quality Manager" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                    <h3 class="h4">Mike Thompson</h3>
+                    <p class="text-muted">Quality Assurance Manager</p>
                 </div>
             </div>
         </div>
@@ -50,23 +90,46 @@
 </div>
 
 <style>
-.about-image-container {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.about-hero {
+    position: relative;
+    background-attachment: fixed;
 }
 
-.feature-card {
-    transition: transform 0.2s;
+.team-member img {
+    transition: transform 0.3s ease;
 }
 
-.feature-card:hover {
+.team-member:hover img {
+    transform: scale(1.05);
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
     transform: translateY(-5px);
 }
 
-.list-unstyled li {
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+.about-page h2 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.about-page .lead {
+    color: #34495e;
+}
+
+.about-page .card {
+    border-radius: 15px;
+}
+
+.about-page .card i {
+    transition: transform 0.3s ease;
+}
+
+.about-page .card:hover i {
+    transform: scale(1.1);
 }
 </style>
 {% endblock %}
