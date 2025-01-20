@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
+from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
 from app.models.product import Product, Order, OrderItem
 from app import db
@@ -12,11 +12,20 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 @shop.route('/products')
 def products():
     category_id = request.args.get('category', type=int)
-    if category_id:
-        products = Product.query.filter_by(category_id=category_id, is_active=True).all()
-    else:
-        products = Product.query.filter_by(is_active=True).all()
-    return render_template('shop/products.html', products=products)
+    try:
+        if category_id:
+            products = Product.query.filter_by(category_id=category_id, is_active=True).all()
+        else:
+            products = Product.query.filter_by(is_active=True).all()
+        
+        current_app.logger.info(f"Found {len(products)} products")
+        for product in products:
+            current_app.logger.info(f"Product: {product.name}, Category: {product.category.name}")
+        
+        return render_template('shop/products.html', products=products)
+    except Exception as e:
+        current_app.logger.error(f"Error in products route: {str(e)}")
+        return render_template('shop/products.html', products=[])
 
 @shop.route('/product/<int:product_id>')
 def product_detail(product_id):
