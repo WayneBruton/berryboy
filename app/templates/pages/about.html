@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="mb-4">About BerryBoy</h1>
+            <p class="lead">We're passionate about bringing the finest berries straight from local farms to your table.</p>
+            
+            <div class="mb-4">
+                <h3>Our Story</h3>
+                <p>Founded in 2024, BerryBoy started with a simple mission: to make premium quality berries accessible to everyone. We work directly with local farmers to ensure the freshest produce while supporting sustainable farming practices.</p>
+            </div>
+            
+            <div class="mb-4">
+                <h3>Our Promise</h3>
+                <ul class="list-unstyled">
+                    <li>✓ Fresh, hand-picked berries</li>
+                    <li>✓ Sustainable farming practices</li>
+                    <li>✓ Support for local farmers</li>
+                    <li>✓ Premium quality guarantee</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="about-image-container">
+                <img src="{{ url_for('static', filename='img/about/farm.jpg') }}" alt="Berry Farm" class="img-fluid rounded shadow">
+            </div>
+            
+            <div class="mt-4">
+                <h3>Why Choose Us?</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card p-3 bg-light rounded">
+                            <h4>Quality</h4>
+                            <p>Only the finest berries make it to your table</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card p-3 bg-light rounded">
+                            <h4>Freshness</h4>
+                            <p>From farm to door within 24 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.about-image-container {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.feature-card {
+    transition: transform 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.list-unstyled li {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}

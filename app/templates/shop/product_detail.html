@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}" class="img-fluid rounded">
+        </div>
+        <div class="col-md-6">
+            <h1>{{ product.name }}</h1>
+            <p class="lead">{{ product.description }}</p>
+            <div class="price-tag mb-4">
+                <h2>${{ "%.2f"|format(product.price) }}</h2>
+            </div>
+            <div class="quantity-selector mb-4">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" min="1" max="{{ product.stock }}" value="1" class="form-control d-inline-block w-auto">
+            </div>
+            <button onclick="addToCart({{ product.id }})" class="btn btn-primary btn-lg">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function addToCart(productId) {
+    const quantity = document.getElementById('quantity').value;
+    fetch('/shop/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: parseInt(quantity)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            alert('Product added to cart!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding product to cart');
+    });
+}
+</script>
+{% endblock %}

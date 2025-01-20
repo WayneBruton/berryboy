@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section mt-5">
+    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}');">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-4">Fresh & Funky Berries</h1>
+                <p class="lead mb-4">Discover our handpicked selection of the freshest berries delivered right to your door!</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('shop.products') }}" class="btn btn-primary btn-lg">Shop Now</a>
+                    <a href="#featured-products" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Browse by Category</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <a href="{{ url_for('shop.products', category=1) }}" class="text-decoration-none">
+                    <div class="category-card">
+                        <img src="{{ url_for('static', filename='img/products/strawberries.jpg') }}" alt="Fresh Berries">
+                        <div class="category-overlay">
+                            <h3>Fresh Berries</h3>
+                            <p>Handpicked daily for maximum freshness. Our berries go straight from farm to your table.</p>
+                            <button class="btn btn-outline-light">Shop Fresh</button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('shop.products', category=2) }}" class="text-decoration-none">
+                    <div class="category-card">
+                        <img src="{{ url_for('static', filename='img/products/frozen-berries.jpg') }}" alt="Frozen Berries">
+                        <div class="category-overlay">
+                            <h3>Frozen Berries</h3>
+                            <p>Flash-frozen at peak ripeness to lock in nutrients and flavor. Perfect for smoothies and baking.</p>
+                            <button class="btn btn-outline-light">Shop Frozen</button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('shop.products', category=3) }}" class="text-decoration-none">
+                    <div class="category-card">
+                        <img src="{{ url_for('static', filename='img/products/berry-jam.jpg') }}" alt="Berry Products">
+                        <div class="category-overlay">
+                            <h3>Berry Products</h3>
+                            <p>Artisanal jams, preserves, and berry-based treats made with love and natural ingredients.</p>
+                            <button class="btn btn-outline-light">Shop Products</button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products py-5 bg-light" id="featured-products">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Products</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='img/products/strawberries.jpg') }}" alt="Fresh Strawberries">
+                    <div class="card-body">
+                        <h5 class="card-title">Fresh Strawberries</h5>
+                        <p class="card-text">Sweet and juicy strawberries, freshly picked from local farms.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">$4.99</span>
+                            <a href="{{ url_for('shop.add_to_cart', product_id=1) }}" class="btn btn-primary">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='img/products/blueberries.jpg') }}" alt="Fresh Blueberries">
+                    <div class="card-body">
+                        <h5 class="card-title">Fresh Blueberries</h5>
+                        <p class="card-text">Plump and sweet blueberries, rich in antioxidants.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">$6.99</span>
+                            <a href="{{ url_for('shop.add_to_cart', product_id=2) }}" class="btn btn-primary">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='img/products/frozen-berries.jpg') }}" alt="Frozen Raspberry Mix">
+                    <div class="card-body">
+                        <h5 class="card-title">Frozen Raspberry Mix</h5>
+                        <p class="card-text">Premium raspberries, flash-frozen to preserve flavor.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">$5.99</span>
+                            <a href="{{ url_for('shop.add_to_cart', product_id=3) }}" class="btn btn-primary">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='img/products/mixed-berries.jpg') }}" alt="Mixed Berry Collection">
+                    <div class="card-body">
+                        <h5 class="card-title">Mixed Berry Collection</h5>
+                        <p class="card-text">A delightful mix of fresh seasonal berries.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">$12.99</span>
+                            <a href="{{ url_for('shop.add_to_cart', product_id=4) }}" class="btn btn-primary">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="why-choose-us py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose BerryBoy?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fas fa-truck-fast fa-3x mb-3 text-primary"></i>
+                    <h4>Fast Delivery</h4>
+                    <p>Same day delivery for orders placed before 2 PM</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fas fa-leaf fa-3x mb-3 text-primary"></i>
+                    <h4>100% Organic</h4>
+                    <p>All our berries are organically grown and certified</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fas fa-medal fa-3x mb-3 text-primary"></i>
+                    <h4>Premium Quality</h4>
+                    <p>Hand-picked and carefully selected fresh berries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3>Subscribe to Our Newsletter</h3>
+                <p>Get updates about new products and seasonal offers!</p>
+            </div>
+            <div class="col-md-6">
+                <form class="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Your email address">
+                        <button class="btn btn-light" type="submit">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        margin-top: -2rem;
+    }
+    .hero-slide {
+        background-size: cover;
+        background-position: center;
+        min-height: 75vh;
+        position: relative;
+    }
+    .hero-slide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+    }
+    .category-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+    .category-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        color: white;
+        text-align: center;
+    }
+    .product-card {
+        transition: transform 0.3s;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    .feature-card {
+        padding: 2rem;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            // Add to cart logic here
+            alert('Product added to cart!');
+        });
+    });
+</script>
+{% endblock %}

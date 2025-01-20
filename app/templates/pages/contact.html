@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="mb-4">Contact Us</h1>
+            <p class="lead mb-4">Have a question or feedback? We'd love to hear from you!</p>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" class="contact-form">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="contact-info p-4 bg-light rounded">
+                <h3>Other Ways to Reach Us</h3>
+                
+                <div class="mt-4">
+                    <h4>Visit Our Store</h4>
+                    <p>123 Berry Street<br>Cape Town, South Africa<br>8001</p>
+                </div>
+                
+                <div class="mt-4">
+                    <h4>Business Hours</h4>
+                    <p>Monday - Friday: 9:00 AM - 6:00 PM<br>
+                    Saturday: 9:00 AM - 4:00 PM<br>
+                    Sunday: Closed</p>
+                </div>
+                
+                <div class="mt-4">
+                    <h4>Phone</h4>
+                    <p>+27 (21) 123-4567</p>
+                </div>
+                
+                <div class="mt-4">
+                    <h4>Email</h4>
+                    <p>info@berryboy.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-form {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.contact-info {
+    height: 100%;
+}
+
+.contact-info h4 {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.form-control:focus {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.btn-primary {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-primary:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+</style>
+{% endblock %}
