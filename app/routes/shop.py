@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, flash, redirect,
 from flask_login import login_required, current_user
 from app.models.product import Product, Order, OrderItem
 from app import db
+from sqlalchemy import text
 import stripe
 import os
 import traceback
@@ -19,7 +20,7 @@ def products():
         
         # Try to connect to database
         try:
-            db.session.execute('SELECT 1')
+            db.session.execute(text('SELECT 1'))
             current_app.logger.info("Database connection successful")
         except Exception as db_err:
             current_app.logger.error(f"Database connection error: {str(db_err)}")

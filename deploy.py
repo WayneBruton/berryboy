@@ -1,6 +1,7 @@
 from app import create_app, db
 from app.models import Product, Category
 from flask_migrate import upgrade
+from sqlalchemy import text
 import time
 
 def deploy():
@@ -13,7 +14,7 @@ def deploy():
         for i in range(max_retries):
             try:
                 # Try to connect to the database
-                db.session.execute('SELECT 1')
+                db.session.execute(text('SELECT 1'))
                 print("Database connection successful!")
                 break
             except Exception as e:
