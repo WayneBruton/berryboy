@@ -11,6 +11,8 @@ Flask-Admin==1.6.1
 SQLAlchemy==2.0.25
 psycopg2-binary==2.9.9
 alembic==1.13.1
+pymongo==4.5.0
+Flask-PyMongo==2.3.0
 
 # Web Server
 gunicorn==21.2.0

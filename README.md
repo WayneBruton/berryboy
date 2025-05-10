@@ -21,7 +21,8 @@ Create a `.env` file in the root directory and add:
 FLASK_APP=run.py
 FLASK_ENV=development
 SECRET_KEY=your-secret-key
-DATABASE_URL=sqlite:///berryboy.db
+MONGO_DB_URI=your-mongodb-connection-string
+DATABASE=theberryboy
 ```
 
 4. Initialize the database:

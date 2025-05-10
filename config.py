@@ -3,8 +3,8 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///berryboy.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MONGO_URI = os.environ.get('MONGO_DB_URI')
+    MONGO_DBNAME = os.environ.get('DATABASE') or 'theberryboy'
     
     # Flask-Mail configuration
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'

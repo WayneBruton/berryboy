@@ -1,45 +1,54 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User
-from app import db
+from app import db, mongo
 import bcrypt
+from datetime import datetime
+from app.forms.auth import LoginForm, RegisterForm
 
 auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
         
-        if user and user.check_password(password):
+        # Find user using our model method
+        user = User.find_by_email(email)
+        
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
             login_user(user)
+            current_app.logger.info(f"User logged in: {email}")
             return redirect(url_for('main.index'))
+            
         flash('Please check your login details and try again.', 'danger')
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', form=form)
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        name = request.form.get('name')
-        password = request.form.get('password')
+    form = RegisterForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        name = form.name.data
+        password = form.password.data
         
-        user = User.query.filter_by(email=email).first()
-        if user:
+        # Check if user already exists (using our model method)
+        existing_user = User.find_by_email(email)
+        if existing_user:
             flash('Email address already exists', 'danger')
             return redirect(url_for('auth.register'))
         
-        new_user = User(email=email, name=name)
-        new_user.set_password(password)
+        # Create user using our User model method
+        User.create_mongodb_user(email, name, password)
         
-        db.session.add(new_user)
-        db.session.commit()
+        # Log to console for debugging
+        current_app.logger.info(f"Created new user: {email} in MongoDB database: {current_app.config['MONGO_DBNAME']}")
         
         flash('Registration successful!', 'success')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', form=form)
 
 @auth.route('/logout')
 @login_required

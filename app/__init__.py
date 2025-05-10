@@ -1,7 +1,7 @@
 from flask import Flask, session
 from dotenv import load_dotenv
 import os
-from app.extensions import db, login_manager, mail, migrate, admin
+from app.extensions import db, login_manager, mail, migrate, admin, mongo
 from flask_wtf.csrf import CSRFProtect
 
 csrf = CSRFProtect()
@@ -20,13 +20,19 @@ def create_app():
     # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
     
-    # Handle Render.com PostgreSQL URL
+    # Database Configuration
+    app.config['MONGO_URI'] = os.getenv('MONGO_DB_URI')
+    app.config['MONGO_DBNAME'] = os.getenv('DATABASE', 'theberryboy')
+    app.config['MONGO_TLS_ALLOW_INVALID_CERTIFICATES'] = True  # Handle SSL certificate issues
+    
+    # Keep using SQLAlchemy with SQLite as before
     database_url = os.getenv('DATABASE_URL')
     if database_url and database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     else:
+        # Fallback to SQLite - keeping existing functionality
         database_url = f'sqlite:///{os.path.join(instance_path, "berryboy.db")}'
-    
+        
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
@@ -39,13 +45,16 @@ def create_app():
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@berryboy.com')
     
     # Initialize extensions with app
-    db.init_app(app)
+    db.init_app(app)  # Initialize SQLAlchemy first
+    admin.init_app(app)
+    # Temporarily disable CSRF protection while we focus on MongoDB integration
+    # csrf.init_app(app)
+    app.config['WTF_CSRF_ENABLED'] = False  # Temporarily disable CSRF
+    mongo.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     mail.init_app(app)
     migrate.init_app(app, db)
-    admin.init_app(app)
-    csrf.init_app(app)
     
     with app.app_context():
         # Import models
