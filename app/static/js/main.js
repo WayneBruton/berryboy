@@ -70,6 +70,33 @@ class Cart {
 // Initialize cart
 const cart = new Cart();
 
+// Global function to add product to cart (used by onclick attributes)
+function addToCart(productId, quantity = 1) {
+    // First check with the server if the product is available
+    fetch(`/api/cart/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: productId, quantity: quantity })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Error adding product to cart');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // If successful, add to local cart
+        cart.addItem(productId, quantity);
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}
+
 // Add to cart functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Add to cart buttons

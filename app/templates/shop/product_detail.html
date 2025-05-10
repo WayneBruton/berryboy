@@ -10,7 +10,7 @@
             <h1>{{ product.name }}</h1>
             <p class="lead">{{ product.description }}</p>
             <div class="price-tag mb-4">
-                <h2>${{ "%.2f"|format(product.price) }}</h2>
+                <h2>R{{ "%.2f"|format(product.price) }}</h2>
             </div>
             <div class="quantity-selector mb-4">
                 <label for="quantity">Quantity:</label>
@@ -23,29 +23,78 @@
 
 <script>
 function addToCart(productId) {
-    const quantity = document.getElementById('quantity').value;
-    fetch('/shop/api/cart/add', {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    
+    // First check with the server if the product is available
+    fetch(`/api/cart/add`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: parseInt(quantity)
-        })
+        body: JSON.stringify({ product_id: productId, quantity: quantity })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
-        } else {
-            alert('Product added to cart!');
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Error adding product to cart');
+            });
         }
+        return response.json();
+    })
+    .then(data => {
+        // If successful on server, update the local storage cart
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.id == productId);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                id: productId,
+                quantity: quantity
+            });
+        }
+        
+        // Save to local storage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Update cart count in the header
+        updateCartCount();
+        
+        // Show success message
+        showNotification('Product added to cart!');
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error adding product to cart');
+        alert(error.message);
     });
+}
+
+// Update cart count in the header
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+    }
+}
+
+// Show notification
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1050';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 </script>
 {% endblock %}
