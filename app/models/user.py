@@ -14,13 +14,22 @@ def load_user(user_id):
     try:
         # First try to interpret user_id as ObjectId (MongoDB)
         if ObjectId.is_valid(user_id):
-            user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-            if user_data:
-                current_app.logger.info(f"Found MongoDB user: {user_data['email']}")
-                user = MongoDBUser(user_data)
-                return user
-    except Exception as e:
-        current_app.logger.error(f"Error loading MongoDB user: {str(e)}")
+            # Try to access MongoDB
+            try:
+                # Use the mongo extension directly which is already initialized
+                if hasattr(mongo, 'db'):
+                    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+                    if user_data:
+                        current_app.logger.info(f"Found MongoDB user: {user_data['email']}")
+                        user = MongoDBUser(user_data)
+                        return user
+                else:
+                    current_app.logger.warning("MongoDB connection not properly initialized")
+            except Exception as e:
+                current_app.logger.error(f"MongoDB error: {str(e)}")
+    except Exception as outer_e:
+        current_app.logger.error(f"MongoDB user load error: {str(outer_e)}")
+        pass
     
     # Fallback to SQLAlchemy if MongoDB lookup fails
     try:
@@ -75,13 +84,42 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_mongodb_connection():
         """Helper method to get MongoDB connection to avoid code duplication"""
-        # Get MongoDB connection details from app config
-        mongo_uri = current_app.config.get('MONGO_URI')
-        db_name = current_app.config.get('MONGO_DBNAME')
-        
-        # Connect to MongoDB with SSL certificate verification disabled
-        client = MongoClient(mongo_uri, tlsAllowInvalidCertificates=True)
-        return client[db_name]
+        try:
+            # Get MongoDB connection details from app config
+            mongo_uri = current_app.config.get('MONGO_URI')
+            db_name = current_app.config.get('MONGO_DBNAME')
+            
+            # Add detailed logging
+            current_app.logger.info(f"Attempting MongoDB connection with URI format: {mongo_uri[:15]}...")
+            current_app.logger.info(f"Database name: {db_name}")
+            
+            # Check for missing configuration
+            if not mongo_uri:
+                current_app.logger.error("MONGO_URI environment variable is missing or empty")
+                return None
+                
+            if not db_name:
+                current_app.logger.error("MONGO_DBNAME environment variable is missing or empty")
+                return None
+            
+            # Connect to MongoDB with SSL certificate verification disabled
+            client = MongoClient(mongo_uri, tlsAllowInvalidCertificates=True)
+            
+            # Test the connection
+            client.admin.command('ping')
+            current_app.logger.info("MongoDB connection successful")
+            
+            # Create database reference
+            db = client[db_name]
+            
+            # Verify the users collection exists
+            if 'users' not in db.list_collection_names():
+                current_app.logger.warning(f"'users' collection not found in database '{db_name}', will be created automatically")
+            
+            return db
+        except Exception as e:
+            current_app.logger.error(f"MongoDB connection error: {str(e)}")
+            return None
         
     @classmethod
     def create_mongodb_user(cls, email, name, password, is_admin=False):
@@ -131,17 +169,33 @@ class User(UserMixin, db.Model):
     def find_by_id(cls, user_id):
         """Find a user by ID in MongoDB"""
         try:
+            # Validate ObjectId format
+            if not ObjectId.is_valid(user_id):
+                current_app.logger.warning(f"Invalid ObjectId format: {user_id}")
+                return None
+                
             # Get MongoDB connection and query user
             db = cls.get_mongodb_connection()
-            user_data = db.users.find_one({'_id': ObjectId(user_id)})
-            if user_data:
-                user = cls()
-                user.id = str(user_data['_id'])
-                user.email = user_data['email']
-                user.name = user_data['name']
-                user.is_admin = user_data.get('is_admin', False)
-                user.password_hash = user_data['password_hash']
-                return user
+            
+            # Check if database connection was successful
+            if db is None:
+                current_app.logger.error("MongoDB connection returned None")
+                return None
+                
+            # Safely try to access the users collection
+            try:
+                user_data = db.users.find_one({'_id': ObjectId(user_id)})
+                if user_data:
+                    user = cls()
+                    user.id = str(user_data['_id'])
+                    user.email = user_data['email']
+                    user.name = user_data['name']
+                    user.is_admin = user_data.get('is_admin', False)
+                    user.password_hash = user_data['password_hash']
+                    return user_data  # Return the raw user data for MongoDBUser
+            except AttributeError as e:
+                current_app.logger.error(f"MongoDB users collection error: {str(e)}")
+                return None
         except Exception as e:
             current_app.logger.error(f"Error finding user by ID: {str(e)}")
         return None
