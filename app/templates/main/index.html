@@ -75,7 +75,7 @@
                         <p class="card-text">Sweet and juicy strawberries, freshly picked from local farms.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">R4.99</span>
-                            <a href="{{ url_for('shop.add_to_cart', product_id=1) }}" class="btn btn-outline-primary">Add to Cart</a>
+                            <button onclick="addToCartHome(1)" class="btn btn-outline-primary">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                         <p class="card-text">Plump and sweet blueberries, rich in antioxidants.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">R6.99</span>
-                            <a href="{{ url_for('shop.add_to_cart', product_id=2) }}" class="btn btn-outline-primary">Add to Cart</a>
+                            <button onclick="addToCartHome(2)" class="btn btn-outline-primary">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
                         <p class="card-text">Premium raspberries, flash-frozen to preserve flavor.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">R5.99</span>
-                            <a href="{{ url_for('shop.add_to_cart', product_id=3) }}" class="btn btn-outline-primary">Add to Cart</a>
+                            <button onclick="addToCartHome(3)" class="btn btn-outline-primary">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                         <p class="card-text">A delightful mix of fresh seasonal berries.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">R12.99</span>
-                            <a href="{{ url_for('shop.add_to_cart', product_id=4) }}" class="btn btn-outline-primary">Add to Cart</a>
+                            <button onclick="addToCartHome(4)" class="btn btn-outline-primary">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -154,6 +154,91 @@
 </section>
 
 <!-- Newsletter section removed -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addToCartHome(productId) {
+    // Default quantity for home page is 1
+    const quantity = 1;
+    
+    // First check with the server if the product is available
+    fetch(`/api/cart/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: productId, quantity: quantity })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Error adding product to cart');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // If successful on server, update the local storage cart
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.id == productId);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                id: productId,
+                quantity: quantity
+            });
+        }
+        
+        // Save to local storage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Update cart count in the header
+        updateCartCount();
+        
+        // Show success message
+        showNotification('Product added to cart!');
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}
+
+// Update cart count in the header
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+    }
+}
+
+// Show notification
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1050';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Initialize cart display when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
+</script>
 {% endblock %}
 
 {% block extra_css %}
