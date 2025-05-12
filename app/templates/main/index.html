@@ -172,6 +172,13 @@ function addToCartHome(productId) {
         body: JSON.stringify({ product_id: productId, quantity: quantity })
     })
     .then(response => {
+        if (response.status === 401) {
+            // For authentication errors, show alert before redirecting
+            alert('Please log in to add items to cart');
+            window.location.href = "{{ url_for('auth.login') }}";
+            return Promise.reject('Authentication required');
+        }
+        
         if (!response.ok) {
             return response.json().then(data => {
                 throw new Error(data.error || 'Error adding product to cart');
@@ -203,7 +210,10 @@ function addToCartHome(productId) {
         showNotification('Product added to cart!');
     })
     .catch(error => {
-        alert(error.message);
+        // Only show alert if it's not an authentication error
+        if (error !== 'Authentication required') {
+            alert(error.message || error);
+        }
     });
 }
 

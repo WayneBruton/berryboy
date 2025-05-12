@@ -16,12 +16,25 @@
                 <label for="quantity">Quantity:</label>
                 <input type="number" id="quantity" min="1" max="{{ product.stock }}" value="1" class="form-control d-inline-block w-auto">
             </div>
-            <button onclick="addToCart({{ product.id }})" class="btn btn-primary btn-lg">Add to Cart</button>
+            <button class="btn btn-primary btn-lg" id="add-to-cart-btn">Add to Cart</button>
         </div>
     </div>
 </div>
 
 <script>
+// Store product ID in a variable to use in the event listener
+const productId = parseInt('{{ product.id }}');
+
+// Add event listener when the document is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            addToCart(productId);
+        });
+    }
+});
+
 function addToCart(productId) {
     const quantity = parseInt(document.getElementById('quantity').value);
     
@@ -34,6 +47,12 @@ function addToCart(productId) {
         body: JSON.stringify({ product_id: productId, quantity: quantity })
     })
     .then(response => {
+        if (response.status === 401) {
+            // For authentication errors, redirect to login page
+            window.location.href = "{{ url_for('auth.login') }}";
+            return Promise.reject('Authentication required');
+        }
+        
         if (!response.ok) {
             return response.json().then(data => {
                 throw new Error(data.error || 'Error adding product to cart');
@@ -65,7 +84,10 @@ function addToCart(productId) {
         showNotification('Product added to cart!');
     })
     .catch(error => {
-        alert(error.message);
+        // Only show alert if it's not an authentication error
+        if (error !== 'Authentication required') {
+            alert(error.message || error);
+        }
     });
 }
 

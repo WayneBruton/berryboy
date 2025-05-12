@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for, current_app, session
 from flask_login import login_required, current_user
 from app.models.product import Product, Order, OrderItem
 from app import db
@@ -77,7 +77,13 @@ def get_product(product_id):
 
 @shop.route('/api/cart/add', methods=['POST'])
 def add_to_cart():
+    """Add a product to the cart - requires authentication"""
     try:
+        # Check if user is authenticated
+        if not current_user.is_authenticated and not session.get('authenticated'):
+            current_app.logger.info("Unauthenticated user attempted to add item to cart")
+            return jsonify({'error': 'Please log in to add items to cart'}), 401
+            
         # Log the request data for debugging
         current_app.logger.info(f"Add to cart request: {request.json}")
         
