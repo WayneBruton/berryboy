@@ -175,6 +175,12 @@
     <script>
     // Global function to update the cart icon from anywhere
     window.updateCartIcon = function(count) {
+        // If updateCartCount is available from cart-utils.js, use that for consistency
+        if (window.updateCartCount && typeof window.updateCartCount === 'function') {
+            return window.updateCartCount();
+        }
+        
+        // Otherwise use the legacy method
         const cartCount = document.querySelector('.cart-count');
         if (cartCount) {
             cartCount.textContent = count;

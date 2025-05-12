@@ -15,6 +15,7 @@
             el.textContent = itemCount;
         });
         
+        console.log('Cart count updated to:', itemCount); // Debug info
         return itemCount;
     }
     
@@ -27,6 +28,13 @@
             // Update cart count when cart data changes in another tab
             updateCartCount();
         }
+    });
+    
+    // Run immediately when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Cart utilities loaded - updating cart count');
+        // Force an immediate update of cart count
+        setTimeout(updateCartCount, 100); // Small delay to ensure DOM is ready
     });
     
     // Simple cart operations
