@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_admin import Admin
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
+from flask_jwt_extended import JWTManager
 
 # Custom PyMongo class to handle SSL certificate verification
 class SecurePyMongo(PyMongo):
@@ -28,3 +29,4 @@ mail = Mail()
 migrate = Migrate()
 admin = Admin()
 mongo = SecurePyMongo()
+jwt = JWTManager()

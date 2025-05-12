@@ -1,37 +1,68 @@
-from app.extensions import db, login_manager
+from app.extensions import db, login_manager, mongo
 from flask_login import UserMixin
 from datetime import datetime
 import bcrypt
 from bson.objectid import ObjectId
-from flask import current_app
+from flask import current_app, session
 from pymongo import MongoClient
 
 @login_manager.user_loader
 def load_user(user_id):
+    current_app.logger.info(f"Loading user: {user_id}")
+    
     # Try to load from MongoDB first
     try:
-        user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-        if user_data:
-            user = User()
-            user.id = str(user_data['_id'])
-            user.email = user_data['email']
-            user.name = user_data['name']
-            user.is_admin = user_data.get('is_admin', False)
-            return user
-    except:
-        pass
-        
+        # First try to interpret user_id as ObjectId (MongoDB)
+        if ObjectId.is_valid(user_id):
+            user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+            if user_data:
+                current_app.logger.info(f"Found MongoDB user: {user_data['email']}")
+                user = MongoDBUser(user_data)
+                return user
+    except Exception as e:
+        current_app.logger.error(f"Error loading MongoDB user: {str(e)}")
+    
     # Fallback to SQLAlchemy if MongoDB lookup fails
-    return User.query.get(int(user_id)) if user_id.isdigit() else None
+    try:
+        if user_id.isdigit():
+            user = User.query.get(int(user_id))
+            if user:
+                current_app.logger.info(f"Found SQLAlchemy user: {user.email}")
+                return user
+    except Exception as e:
+        current_app.logger.error(f"Error loading SQLAlchemy user: {str(e)}")
+    
+    return None
+
+# Dedicated class for MongoDB users
+class MongoDBUser(UserMixin):
+    def __init__(self, user_data):
+        self.id = str(user_data['_id'])
+        self.email = user_data['email']
+        self.name = user_data['name']
+        self.password_hash = user_data['password_hash']
+        self.is_admin = user_data.get('is_admin', False)
+        
+    def get_id(self):
+        return str(self.id)
+    
+    def __repr__(self):
+        return f'<MongoDBUser {self.email}>'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    name = db.Column(db.String(64))
+    password_hash = db.Column(db.LargeBinary, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     orders = db.relationship('Order', backref='user', lazy=True)
+    
+    def get_id(self):
+        return str(self.id)
+    
+    def __repr__(self):
+        return f'<User {self.email}>'
     
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -94,6 +125,25 @@ class User(UserMixin, db.Model):
             user.is_admin = user_data.get('is_admin', False)
             user.password_hash = user_data['password_hash']
             return user
+        return None
+        
+    @classmethod
+    def find_by_id(cls, user_id):
+        """Find a user by ID in MongoDB"""
+        try:
+            # Get MongoDB connection and query user
+            db = cls.get_mongodb_connection()
+            user_data = db.users.find_one({'_id': ObjectId(user_id)})
+            if user_data:
+                user = cls()
+                user.id = str(user_data['_id'])
+                user.email = user_data['email']
+                user.name = user_data['name']
+                user.is_admin = user_data.get('is_admin', False)
+                user.password_hash = user_data['password_hash']
+                return user
+        except Exception as e:
+            current_app.logger.error(f"Error finding user by ID: {str(e)}")
         return None
     
     def check_password(self, password):

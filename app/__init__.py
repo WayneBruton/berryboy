@@ -1,7 +1,8 @@
 from flask import Flask, session
 from dotenv import load_dotenv
 import os
-from app.extensions import db, login_manager, mail, migrate, admin, mongo
+from datetime import timedelta
+from app.extensions import db, login_manager, mail, migrate, admin, mongo, jwt
 from flask_wtf.csrf import CSRFProtect
 
 csrf = CSRFProtect()
@@ -44,8 +45,22 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@berryboy.com')
     
+    # JWT Configuration
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', app.config['SECRET_KEY'])
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=6)  # 6-hour token lifespan
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+    app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+    
+    # Initialize extensions with app
     # Initialize extensions with app
     db.init_app(app)  # Initialize SQLAlchemy first
+    login_manager.init_app(app)  # Make sure login_manager is properly initialized
+    login_manager.login_view = 'auth.login'  # Set the login view
+    login_manager.refresh_view = 'auth.login'  # Set the refresh view to redirect users
+    login_manager.needs_refresh_message = 'Please log in again to confirm your identity'
+    login_manager.session_protection = 'strong'  # Provide better session protection
+    
     admin.init_app(app)
     # Temporarily disable CSRF protection while we focus on MongoDB integration
     # csrf.init_app(app)
@@ -55,6 +70,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     mail.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
     
     with app.app_context():
         # Import models

@@ -67,14 +67,15 @@
                             <span class="cart-count">0</span>
                         </a>
                     </div>
-                    {% if current_user.is_authenticated %}
+                                        <!-- Authentication buttons - Using session directly to control display -->                    
+                    {% if session.get('authenticated') %}
                         <div class="dropdown">
                             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                {{ current_user.name }}
+                                {{ session.get('user_name', current_user.name) }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{{ url_for('shop.orders') }}">My Orders</a></li>
-                                {% if current_user.is_admin %}
+                                {% if current_user.is_admin or session.get('is_admin') %}
                                     <li><a class="dropdown-item" href="{{ url_for('admin_panel.admin_dashboard') }}">Admin Dashboard</a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
@@ -82,8 +83,13 @@
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">Sign Up</a>
+                        <!-- User is not logged in - show login button only -->
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary me-2">Login</a>
+                        
+                        <!-- Only show register button if explicitly not logged in -->
+                        {% if not session.get('authenticated') %}
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">Sign Up</a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -162,5 +168,13 @@
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
+    
+    <!-- Authentication is now handled server-side with session data -->
+    <script>
+    // Initialize any client-side functionality here
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded successfully');
+    });
+    </script>
 </body>
 </html>

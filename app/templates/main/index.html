@@ -156,7 +156,8 @@
 <!-- Newsletter section removed -->
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_css %}
+<!-- Cart functionality JavaScript -->
 <script>
 function addToCartHome(productId) {
     // Default quantity for home page is 1
@@ -239,9 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCount();
 });
 </script>
-{% endblock %}
 
-{% block extra_css %}
 <style>
     .hero-section {
         margin-top: -2rem;
@@ -256,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
         background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}');
     }
     .hero-slide::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
