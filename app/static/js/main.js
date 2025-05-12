@@ -1,8 +1,74 @@
+// Function to ensure consistent cart counts across the site
+function fixCartCounting() {
+    // Get all cart elements
+    const cartCountElements = document.querySelectorAll('.cart-count');
+    if (!cartCountElements.length) return 0;
+    
+    // Get cart items
+    const items = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // Calculate correct count - force integer parsing
+    const correctCount = items.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+    
+    // Update all cart count elements
+    cartCountElements.forEach(element => {
+        element.textContent = correctCount;
+    });
+    
+    return correctCount;
+}
+
 // Cart functionality
 class Cart {
     constructor() {
         this.items = JSON.parse(localStorage.getItem('cart')) || [];
-        this.updateCartCount();
+        // Call the improved counting method
+        fixCartCounting();
+    }
+    
+    setupLiveUpdates() {
+        // Listen for storage events (updates from other tabs)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cart') {
+                this.items = JSON.parse(event.newValue) || [];
+                this.updateCartCount();
+            }
+        });
+        
+        // Update cart on page visibility change (when user returns to tab)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                this.refreshCartFromServer();
+            }
+        });
+        
+        // Set up periodic refresh (every 30 seconds)
+        setInterval(() => this.refreshCartFromServer(), 30000);
+    }
+    
+    refreshCartFromServer() {
+        // Fetch the latest cart data from the server
+        fetch('/api/cart/get')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cart data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Only update if there's a difference
+                const serverCart = JSON.stringify(data.items || []);
+                const localCart = JSON.stringify(this.items);
+                
+                if (serverCart !== localCart) {
+                    this.items = data.items || [];
+                    this.saveCart();
+                    this.updateCartCount();
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing cart:', error);
+            });
     }
 
     addItem(productId, quantity = 1) {
@@ -23,18 +89,77 @@ class Cart {
     }
 
     removeItem(productId) {
-        this.items = this.items.filter(item => item.id !== productId);
-        this.saveCart();
-        this.updateCartCount();
+        // First call server-side removal endpoint
+        fetch('/api/cart/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Error removing product from cart');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update local cart on success
+            this.items = this.items.filter(item => item.id !== productId);
+            this.saveCart();
+            this.updateCartCount(data.cart_count);
+        })
+        .catch(error => {
+            console.error('Error removing item:', error);
+            // Update local cart anyway to keep UI responsive
+            this.items = this.items.filter(item => item.id !== productId);
+            this.saveCart();
+            this.updateCartCount();
+        });
     }
 
     updateQuantity(productId, quantity) {
-        const item = this.items.find(item => item.id === productId);
-        if (item) {
-            item.quantity = quantity;
-            this.saveCart();
-            this.updateCartCount();
-        }
+        // Update on server first
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                product_id: productId, 
+                quantity: quantity,
+                is_update: true  // Flag to indicate this is an update, not an add
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Error updating cart quantity');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update local cart on success
+            const item = this.items.find(item => item.id === productId);
+            if (item) {
+                item.quantity = quantity;
+                this.saveCart();
+                this.updateCartCount(data.cart_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating quantity:', error);
+            // Update local cart anyway to keep UI responsive
+            const item = this.items.find(item => item.id === productId);
+            if (item) {
+                item.quantity = quantity;
+                this.saveCart();
+                this.updateCartCount();
+            }
+        });
     }
 
     saveCart() {
@@ -42,11 +167,8 @@ class Cart {
     }
 
     updateCartCount() {
-        const cartCount = document.querySelector('.cart-count');
-        if (cartCount) {
-            const totalItems = this.items.reduce((sum, item) => sum + item.quantity, 0);
-            cartCount.textContent = totalItems;
-        }
+        // Use the improved fixCartCounting function instead
+        return fixCartCounting();
     }
 
     showNotification(message) {
@@ -67,8 +189,36 @@ class Cart {
     }
 }
 
+// Function to ensure consistent cart counts
+function fixCartCounting() {
+    // Get all cart elements
+    const cartCountElements = document.querySelectorAll('.cart-count');
+    if (!cartCountElements.length) return;
+    
+    // Get cart items
+    const items = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // Calculate correct count - force integer parsing
+    const correctCount = items.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+    
+    // Update all cart count elements
+    cartCountElements.forEach(element => {
+        element.textContent = correctCount;
+    });
+}
+
 // Initialize cart
 const cart = new Cart();
+
+// Fix cart counting after a short delay (let everything else initialize first)
+setTimeout(fixCartCounting, 100);
+
+// Also add an event listener to fix counting when cart data changes
+window.addEventListener('storage', function(event) {
+    if (event.key === 'cart') {
+        fixCartCounting();
+    }
+});
 
 // Global function to add product to cart (used by onclick attributes)
 function addToCart(productId, quantity = 1) {

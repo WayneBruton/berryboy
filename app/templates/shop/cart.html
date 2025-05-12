@@ -41,6 +41,26 @@
 </div>
 
 <script>
+// Function to directly update the cart count correctly
+function updateCartCountDirectly() {
+    // Get cart items from localStorage
+    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // Calculate the correct total (explicitly parsing as integers)
+    const totalItems = cartItems.reduce(function(sum, item) {
+        return sum + parseInt(item.quantity || 0);
+    }, 0);
+    
+    // Update the cart icon
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        cartCount.textContent = totalItems;
+    }
+}
+
+// Update cart count immediately when the page loads
+updateCartCountDirectly();
+
 // Cart display functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Get cart items from localStorage
@@ -48,6 +68,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const cartContainer = document.getElementById('cart-items-container');
     const emptyCartMessage = document.getElementById('empty-cart-message');
     const cartTotal = document.getElementById('cart-total');
+    
+    // Function to update cart icon across all pages
+    function updateCartIconGlobally(count) {
+        // Update all cart count elements on the page
+        document.querySelectorAll('.cart-count').forEach(el => {
+            el.textContent = count;
+        });
+        
+        // Also update localStorage value to stay in sync
+        const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const totalQuantity = currentCart.reduce((sum, item) => sum + item.quantity, 0);
+        if (totalQuantity !== count) {
+            // If server count is different, force refresh all tabs
+            localStorage.setItem('cartCount', count);
+            // Dispatch a storage event to notify other tabs
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'cartCount',
+                newValue: count.toString()
+            }));
+        }
+    }
     
     // Function to update the cart display
     async function updateCartDisplay() {
@@ -171,8 +212,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = this.dataset.id;
                 const item = cartItems.find(i => i.id == id);
                 if (item && item.quantity > 1) {
+                    // Use the global cart utility to update quantity
+                    window.cartOperations.updateQuantity(id, item.quantity - 1)
+                        .catch(error => console.error('Error updating quantity:', error));
+                    
+                    // Update local cart
                     item.quantity--;
                     localStorage.setItem('cart', JSON.stringify(cartItems));
+                    
+                    // Update cart count directly
+                    updateCartCountDirectly();
+                    
                     updateCartDisplay();
                 }
             });
@@ -183,8 +233,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = this.dataset.id;
                 const item = cartItems.find(i => i.id == id);
                 if (item) {
+                    // Use the global cart utility to update quantity
+                    window.cartOperations.updateQuantity(id, item.quantity + 1)
+                        .catch(error => console.error('Error updating quantity:', error));
+                    
+                    // Update local cart
                     item.quantity++;
                     localStorage.setItem('cart', JSON.stringify(cartItems));
+                    
+                    // Update cart count directly
+                    updateCartCountDirectly();
+                    
                     updateCartDisplay();
                 }
             });
@@ -198,8 +257,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const item = cartItems.find(i => i.id == id);
                 if (item) {
-                    item.quantity = Math.max(1, newQuantity);
+                    const finalQuantity = Math.max(1, newQuantity);
+                    
+                    // Use the global cart utility to update quantity
+                    window.cartOperations.updateQuantity(id, finalQuantity)
+                        .catch(error => console.error('Error updating quantity:', error));
+                    
+                    // Update local cart
+                    item.quantity = finalQuantity;
                     localStorage.setItem('cart', JSON.stringify(cartItems));
+                    
+                    // Update cart count directly
+                    updateCartCountDirectly();
+                    
                     updateCartDisplay();
                 }
             });
@@ -210,8 +280,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = this.dataset.id;
                 const itemIndex = cartItems.findIndex(i => i.id == id);
                 if (itemIndex !== -1) {
+                    // Use the global cart utility to remove item
+                    window.cartOperations.removeItem(id)
+                        .catch(error => console.error('Error removing item:', error));
+                    
+                    // Then update client-side cart
                     cartItems.splice(itemIndex, 1);
                     localStorage.setItem('cart', JSON.stringify(cartItems));
+                    
+                    // Update the cart count directly
+                    updateCartCountDirectly();
+                    
+                    // Update the display
                     updateCartDisplay();
                 }
             });
@@ -220,6 +300,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the cart display
     updateCartDisplay();
+    
+    // Make sure cart count is always accurate
+    window.updateCartCount();
 });
 </script>
 {% endblock %}

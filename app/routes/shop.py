@@ -75,6 +75,42 @@ def get_product(product_id):
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'An error occurred fetching product details'}), 500
 
+@shop.route('/api/cart/get', methods=['GET'])
+def get_cart():
+    """Get the current cart items with product details"""
+    try:
+        # Client-side cart management with server validation
+        # Return cart data from session if available, or empty cart if not
+        cart_items = session.get('cart_items', [])
+        
+        # If user is authenticated, we can also check for any saved cart in their profile
+        if current_user.is_authenticated or session.get('authenticated'):
+            # Add logic here if you want to restore a saved cart from database
+            pass
+            
+        # Get product details for each item in cart
+        cart_with_details = []
+        for item in cart_items:
+            product = Product.query.get(item.get('id'))
+            if product and product.is_active:
+                cart_with_details.append({
+                    'id': product.id,
+                    'name': product.name,
+                    'price': float(product.price),
+                    'quantity': item.get('quantity', 1),
+                    'image': product.image_url,
+                    'stock': product.stock
+                })
+        
+        return jsonify({
+            'items': cart_with_details,
+            'count': len(cart_with_details)
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error getting cart data: {str(e)}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'An error occurred fetching cart data', 'items': []}), 500
+
 @shop.route('/api/cart/add', methods=['POST'])
 def add_to_cart():
     """Add a product to the cart - requires authentication"""
@@ -90,6 +126,7 @@ def add_to_cart():
         # Get product ID and quantity from request
         product_id = request.json.get('product_id')
         quantity = request.json.get('quantity', 1)
+        is_update = request.json.get('is_update', False)
         
         if not product_id:
             current_app.logger.error("No product_id provided in request")
@@ -106,16 +143,73 @@ def add_to_cart():
             current_app.logger.info(f"Not enough stock for product {product_id}: {product.stock} < {quantity}")
             return jsonify({'error': 'Not enough stock available'}), 400
         
-        # Successfully validated product
+        # Store in session for server-side tracking
+        cart_items = session.get('cart_items', [])
+        
+        # Check if product already in cart
+        found = False
+        for item in cart_items:
+            if item.get('id') == product_id:
+                # If it's an update, replace the quantity. Otherwise, add to it.
+                if is_update:
+                    item['quantity'] = quantity
+                else:
+                    item['quantity'] = item.get('quantity', 0) + quantity
+                found = True
+                break
+                
+        # If not found, add it
+        if not found:
+            cart_items.append({
+                'id': product_id,
+                'quantity': quantity
+            })
+            
+        # Update session
+        session['cart_items'] = cart_items
+        
+        # Successfully validated and added product
         current_app.logger.info(f"Product {product_id} added to cart: {product.name}")
         return jsonify({
             'message': 'Product added to cart',
-            'product': product.to_dict()
+            'product': product.to_dict(),
+            'cart_count': sum(item.get('quantity', 0) for item in cart_items)
         })
     except Exception as e:
         current_app.logger.error(f"Error in add to cart route: {str(e)}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'An error occurred adding product to cart'}), 500
+        
+@shop.route('/api/cart/remove', methods=['POST'])
+def remove_from_cart():
+    """Remove a product from the cart"""
+    try:
+        # Get product ID from request
+        product_id = request.json.get('product_id')
+        
+        if not product_id:
+            current_app.logger.error("No product_id provided in request")
+            return jsonify({'error': 'Product ID is required'}), 400
+            
+        # Get cart items from session
+        cart_items = session.get('cart_items', [])
+        
+        # Remove the item with matching product_id
+        updated_cart = [item for item in cart_items if item.get('id') != product_id]
+        
+        # Update session
+        session['cart_items'] = updated_cart
+        
+        # Return updated cart count
+        current_app.logger.info(f"Product {product_id} removed from cart")
+        return jsonify({
+            'message': 'Product removed from cart',
+            'cart_count': sum(item.get('quantity', 0) for item in updated_cart)
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error removing from cart: {str(e)}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'An error occurred removing product from cart'}), 500
 
 @shop.route('/checkout', methods=['GET', 'POST'])
 @login_required
