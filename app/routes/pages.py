@@ -37,6 +37,9 @@ def recipes():
 
 @pages.route('/contact', methods=['GET', 'POST'])
 def contact():
+    # Force template reload - added timestamp to prevent caching
+    import time
+    timestamp = int(time.time())
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')

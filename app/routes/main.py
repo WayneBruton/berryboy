@@ -31,34 +31,29 @@ def about():
         current_app.logger.error(traceback.format_exc())
         return "An error occurred", 500
 
-@main.route('/contact', methods=['GET', 'POST'])
-def contact():
-    try:
-        form = ContactForm()
-        if form.validate_on_submit():
-            try:
-                # Send email
-                msg = Message(
-                    subject=f"Contact Form: {form.subject.data}",
-                    sender=form.email.data,
-                    recipients=["info@berryboy.com"],  # Replace with your email
-                    body=f"""
-                    From: {form.name.data} <{form.email.data}>
-                    Subject: {form.subject.data}
-                    
-                    Message:
-                    {form.message.data}
-                    """
-                )
-                mail.send(msg)
-                flash('Thank you for your message! We will get back to you soon.', 'success')
-                return redirect(url_for('main.contact'))
-            except Exception as e:
-                current_app.logger.error(f"Error sending email: {str(e)}")
-                flash('Sorry, there was an error sending your message. Please try again later.', 'danger')
-        
-        return render_template('pages/contact.html', form=form)
-    except Exception as e:
-        current_app.logger.error(f"Error in contact route: {str(e)}")
-        current_app.logger.error(traceback.format_exc())
-        return "An error occurred", 500
+# This route is commented out to resolve conflict with the one in pages.py
+# @main.route('/contact', methods=['GET', 'POST'])
+# def contact():
+#     print(">>> MAIN BLUEPRINT CONTACT ROUTE ACCESSED")
+#     try:
+#         form = ContactForm()
+#         if form.validate_on_submit():
+#             try:
+#                 msg = Message(
+#                     subject=f"Contact Form: {form.subject.data}",
+#                     recipients=[current_app.config['MAIL_USERNAME']],
+#                     body=f"From: {form.name.data}\nEmail: {form.email.data}\n\nMessage:\n{form.message.data}",
+#                     sender=form.email.data
+#                 )
+#                 mail.send(msg)
+#                 flash('Your message has been sent successfully!', 'success')
+#                 return redirect(url_for('main.contact'))
+#             except Exception as e:
+#                 current_app.logger.error(f"Failed to send email: {str(e)}")
+#                 flash('Sorry, there was a problem sending your message. Please try again.', 'danger')
+#         
+#         return render_template('pages/contact.html', form=form)
+#     except Exception as e:
+#         current_app.logger.error(f"Error in contact route: {str(e)}")
+#         flash('An unexpected error occurred. Please try again.', 'danger')
+#         return redirect(url_for('main.index'))

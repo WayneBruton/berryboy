@@ -80,7 +80,9 @@
             <div class="col-lg-8">
                 <div class="contact-form p-4 bg-light rounded-3 shadow-sm">
                     <h2 class="h3 mb-4">Send Us a Message</h2>
-                    <form method="POST" action="{{ url_for('main.contact') }}">
+                    
+                    {% if form %}
+                    <form method="POST">
                         {{ form.hidden_tag() }}
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -113,30 +115,58 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">{{ form.message.label }}</label>
-                            {{ form.message(class="form-control", rows=5) }}
+                            {{ form.message(class="form-control", rows="5") }}
                             {% if form.message.errors %}
                                 {% for error in form.message.errors %}
                                     <div class="invalid-feedback d-block">{{ error }}</div>
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <div class="text-end">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
                     </form>
+                    {% else %}
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Your Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </div>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Map Section -->
+        <!-- Google Map -->
         <div class="mt-5">
-            <div class="map-container rounded-3 shadow-sm">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.2785767696485!2d18.4241!3d-33.9249!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDU1JzI5LjYiUyAxOMKwMjUnMjYuOCJF!5e0!3m2!1sen!2sza!4v1620000000000!5m2!1sen!2sza" 
-                    width="100%" 
-                    height="450" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy">
-                </iframe>
+            <div class="map-container">
+                <!-- Map section with clean layout that fills the container -->
+                <div class="position-relative" style="height: 550px; width: 100%; overflow: hidden;">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1655.1742532926928!2d18.468104816231204!3d-34.10316374817793!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc42cd4d8969e3%3A0x1c5e1c03609be3ce!2sCornwall%20Rd%2C%20Muizenberg%2C%20Cape%20Town%2C%207945!5e0!3m2!1sen!2sza!4v1714556757235!5m2!1sen!2sza" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
             </div>
         </div>
     </div>
@@ -154,43 +184,8 @@
 
 .map-container {
     overflow: hidden;
-    position: relative;
-    height: 450px;
-}
-
-.map-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.social-links a {
-    transition: transform 0.3s ease;
-    display: inline-block;
-}
-
-.social-links a:hover {
-    transform: translateY(-3px);
-}
-
-.contact-info i {
-    width: 20px;
-}
-
-.form-control {
-    border: 1px solid #dee2e6;
-    padding: 0.75rem;
-}
-
-.form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.btn-primary {
-    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 </style>
 {% endblock %}
