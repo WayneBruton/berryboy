@@ -102,5 +102,11 @@ with app.app_context():
         # Don't raise the error - let the app continue to start
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5001))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Get port from environment variable (Render sets this)
+    port = int(os.environ.get("PORT", 10000))
+    
+    # Only use debug mode in development, not production
+    debug_mode = os.environ.get("FLASK_ENV") == "development"
+    
+    print(f"Starting server on port {port}, debug mode: {debug_mode}")
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
