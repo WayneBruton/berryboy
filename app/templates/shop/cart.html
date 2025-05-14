@@ -45,38 +45,8 @@
         
         <!-- Payment Options -->
         <div class="mt-3" id="payment-form-container">
-            <!-- Development: Payment Testing Interface -->
-            <div class="mb-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Development Payment Testing</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">While in development, use these buttons to test payment outcomes:</p>
-                        
-                        <div class="d-flex justify-content-center gap-2 mb-3">
-                            <button class="btn btn-success" onclick="testPaymentStatus('successful')">
-                                <i class="bi bi-check-circle"></i> Test Successful Payment
-                            </button>
-                            <button class="btn btn-warning" onclick="testPaymentStatus('cancelled')">
-                                <i class="bi bi-x-circle"></i> Test Cancelled Payment
-                            </button>
-                            <button class="btn btn-danger" onclick="testPaymentStatus('failed')">
-                                <i class="bi bi-exclamation-triangle"></i> Test Failed Payment
-                            </button>
-                        </div>
-                        
-                        <div class="alert alert-info mb-0">
-                            <small>Note: The actual PayFast integration will be activated in production.<br>
-                            Local testing won't connect to the real payment gateway due to security restrictions.</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- PayFast Form (Hidden in Development) -->
-            <!-- This form will be activated in production -->
-            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" class="d-none">
+            <!-- PayFast Payment Form -->
+            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" class="mb-3">
                 <input required type="hidden" name="cmd" value="_paynow">
                 <input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
                 <input type="hidden" name="return_url" value="{{ url_for('shop.payment_successful', _external=True) }}">
@@ -85,6 +55,10 @@
                 <input required type="hidden" name="amount" id="payfast-amount" value="0.00">
                 <input required type="hidden" name="item_name" maxlength="255" value="The Berry Boy">
                 <input type="hidden" name="item_description" maxlength="255" value="Premium berries and berry products from The Berry Boy">
+                <div class="text-center">
+                    <label for="payfast-amount" style="padding-bottom: 10px;">Payfast: </label><br />
+                    <input type="image" src="https://my.payfast.io/images/buttons/BuyNow/Primary-Large-BuyNow.png" alt="Buy Now" title="Buy Now with PayFast" class="mt-1">
+                </div>
             </form>
             </div>
 <!-- <div class="mt-3" id="payment-form-container" style="display: flex; align-items: center; justify-content: center;">
