@@ -43,9 +43,10 @@
             <input type="hidden" id="cart-total-value" value="0.00">
         </div>
         
-        <!-- PayFast Payment Form -->
+        <!-- Payment Options -->
         <div class="mt-3" id="payment-form-container">
-            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post">
+            <!-- PayFast Payment Form -->
+            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" class="mb-3">
                 <input required type="hidden" name="cmd" value="_paynow">
                 <input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
                 <input type="hidden" name="return_url" value="https://berryboy.onrender.com">
@@ -55,10 +56,25 @@
                 <input required type="hidden" name="item_name" maxlength="255" value="The Berry Boy">
                 <input type="hidden" name="item_description" maxlength="255" value="Premium berries and berry products from The Berry Boy">
                 <div class="text-center">
-                    <label for="payfast-amount" style="padding-bottom: 10px;">Payfast: </label>
+                    <label for="payfast-amount" style="padding-bottom: 10px;">Payfast: </label><br />
                     <input type="image" src="https://my.payfast.io/images/buttons/BuyNow/Primary-Large-BuyNow.png" alt="Buy Now" title="Buy Now with PayFast" class="mt-1">
                 </div>
             </form>
+            
+            <!-- SnapScan Payment Button -->
+            <div class="text-center mt-3">
+                <!-- <label style="padding-bottom: 10px;"> </label> -->
+                <div>
+                    <label for="payfast-amount" style="padding-bottom: 10px;">SnapScan: </label><br />
+                    <a id="snapscan-link" href="https://pos.snapscan.io/qr/PXMP45057?id=loading&amount=0&strict=true" 
+                       class="btn btn-success" 
+                       target="_blank" 
+                       style="background-color: blue; border-color: blue; border-radius: 25px; width: 174px; height: 43px; display: inline-flex; align-items: center; justify-content: center;" 
+                       onclick="updateSnapScanUrl(event)">
+                        <img src="https://www.snapscan.co.za/images/header-logo.svg" alt="Buy Now" style="height: 20px; margin-right: 5px;"> 
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -83,6 +99,27 @@ function updateCartCountDirectly() {
 
 // Update cart count immediately when the page loads
 updateCartCountDirectly();
+
+// Function to update SnapScan URL right before click
+function updateSnapScanUrl(event) {
+    // Get current cart total
+    const cartTotal = parseFloat(document.getElementById('cart-total-value').value);
+    
+    // Calculate amount in cents
+    const amountInCents = Math.round(cartTotal * 100);
+    
+    // Generate order ID
+    const timestamp = new Date().getTime();
+    const randomPart = Math.floor(Math.random() * 1000);
+    const orderId = `BB-${timestamp}-${randomPart}`;
+    
+    // Get the link and update the href
+    const link = event.currentTarget;
+    link.href = `https://pos.snapscan.io/qr/PXMP45057?id=${orderId}&amount=${amountInCents}&strict=true`;
+    
+    // Continue with the click (no need to prevent default)
+    console.log(`SnapScan URL updated: ${link.href}`);
+}
 
 // Cart display functionality
 document.addEventListener('DOMContentLoaded', function() {
@@ -279,6 +316,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update the hidden total value field and PayFast amount field
         document.getElementById('cart-total-value').value = finalTotal.toFixed(2);
         document.getElementById('payfast-amount').value = finalTotal.toFixed(2);
+        
+        // Note: SnapScan URL is now updated on-click via the updateSnapScanUrl function
         
         // Show/hide the payment form based on cart contents
         const paymentFormContainer = document.getElementById('payment-form-container');
