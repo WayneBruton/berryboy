@@ -51,7 +51,7 @@
                 <input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
                 <input type="hidden" name="return_url" value="{{ url_for('shop.payment_successful', _external=True) }}">
                 <input type="hidden" name="cancel_url" value="{{ url_for('shop.payment_cancelled', _external=True) }}">
-                <input type="hidden" name="notify_url" value="{{ url_for('shop.payment_successful', _external=True) }}">
+                <input type="hidden" name="notify_url" value="https://berryboy.onrender.com/payment/notification">
                 <input required type="hidden" name="amount" id="payfast-amount" value="0.00">
                 <input required type="hidden" name="item_name" maxlength="255" value="The Berry Boy">
                 <input type="hidden" name="item_description" maxlength="255" value="Premium berries and berry products from The Berry Boy">

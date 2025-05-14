@@ -24,6 +24,34 @@ def payment_cancelled():
 def payment_failed():
     return render_template('shop/payment_failed.html')
 
+@shop.route('/payment/notification', methods=['POST'])
+def payment_notification():
+    """Handle server-to-server notifications from PayFast"""
+    try:
+        # Log the payment notification
+        notification_data = request.form.to_dict()
+        current_app.logger.info(f"Payment notification received: {notification_data}")
+        
+        # Verify the payment notification (basic validation)
+        payment_status = notification_data.get('payment_status')
+        m_payment_id = notification_data.get('m_payment_id')
+        amount_gross = notification_data.get('amount_gross')
+        
+        current_app.logger.info(f"Payment status: {payment_status}, ID: {m_payment_id}, Amount: {amount_gross}")
+        
+        # Here you would typically:
+        # 1. Verify the notification is from PayFast
+        # 2. Update your database with order status
+        # 3. Process inventory or trigger other business logic
+        
+        # PayFast expects a 200 response with empty body
+        return '', 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error processing payment notification: {str(e)}")
+        # Still return 200 to acknowledge receipt
+        return '', 200
+
 @shop.route('/products')
 def products():
     category_id = request.args.get('category', type=int)
