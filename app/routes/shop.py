@@ -11,6 +11,19 @@ shop = Blueprint('shop', __name__)
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
+# Payment status routes
+@shop.route('/payment/successful')
+def payment_successful():
+    return render_template('shop/payment_successful.html')
+
+@shop.route('/payment/cancelled')
+def payment_cancelled():
+    return render_template('shop/payment_cancelled.html')
+
+@shop.route('/payment/failed')
+def payment_failed():
+    return render_template('shop/payment_failed.html')
+
 @shop.route('/products')
 def products():
     category_id = request.args.get('category', type=int)

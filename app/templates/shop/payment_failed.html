@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h1>Payment Failed</h1>
+    <p class="mt-4">We're sorry, but there was a problem processing your payment. Please try again or contact us for assistance.</p>
+    <div class="mt-5">
+        <a href="{{ url_for('shop.cart') }}" class="btn btn-primary">Return to Cart</a>
+        <a href="{{ url_for('pages.contact') }}" class="btn btn-outline-secondary ml-3">Contact Support</a>
+    </div>
+</div>
+{% endblock %}

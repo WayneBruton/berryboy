@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h1>Payment Cancelled</h1>
+    <p class="mt-4">Your payment was cancelled. Your cart items are still available if you wish to complete your purchase.</p>
+    <div class="mt-5">
+        <a href="{{ url_for('shop.cart') }}" class="btn btn-primary">Return to Cart</a>
+        <a href="{{ url_for('shop.products') }}" class="btn btn-outline-secondary ml-3">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
