@@ -1,4 +1,5 @@
 from app.extensions import db, login_manager, mongo
+import os
 from flask_login import UserMixin
 from datetime import datetime
 import bcrypt
@@ -85,22 +86,35 @@ class User(UserMixin, db.Model):
     def get_mongodb_connection():
         """Helper method to get MongoDB connection to avoid code duplication"""
         try:
+            # First try to use the already initialized mongo extension
+            if hasattr(mongo, 'db') and mongo.db is not None:
+                current_app.logger.info("Using pre-initialized mongo.db connection")
+                try:
+                    # Test if the connection is valid
+                    mongo.db.command('ping')
+                    current_app.logger.info("Pre-initialized mongo connection is valid")
+                    return mongo.db
+                except Exception as e:
+                    current_app.logger.warning(f"Pre-initialized mongo.db is not usable: {str(e)}. Trying direct connection.")
+            
             # Get MongoDB connection details from app config
             mongo_uri = current_app.config.get('MONGO_URI')
-            db_name = current_app.config.get('MONGO_DBNAME')
+            db_name = current_app.config.get('MONGO_DBNAME', 'theberryboy')
             
             # Add detailed logging
-            current_app.logger.info(f"Attempting MongoDB connection with URI format: {mongo_uri[:15]}...")
+            if mongo_uri:
+                current_app.logger.info(f"Attempting MongoDB connection with URI: {mongo_uri[:15]}..." if mongo_uri else "No MongoDB URI found")
+            else:
+                current_app.logger.error("MONGO_URI is missing in app config")
+                # Try to get from environment directly as fallback
+                mongo_uri = os.environ.get('MONGO_DB_URI')
+                if mongo_uri:
+                    current_app.logger.info(f"Found MongoDB URI in environment variable: {mongo_uri[:15]}...")
+                else:
+                    current_app.logger.error("MONGO_URI missing in both app config and environment variables")
+                    return None
+                    
             current_app.logger.info(f"Database name: {db_name}")
-            
-            # Check for missing configuration
-            if not mongo_uri:
-                current_app.logger.error("MONGO_URI environment variable is missing or empty")
-                return None
-                
-            if not db_name:
-                current_app.logger.error("MONGO_DBNAME environment variable is missing or empty")
-                return None
             
             # Connect to MongoDB with SSL certificate verification disabled
             client = MongoClient(mongo_uri, tlsAllowInvalidCertificates=True)
@@ -124,45 +138,60 @@ class User(UserMixin, db.Model):
     @classmethod
     def create_mongodb_user(cls, email, name, password, is_admin=False):
         """Create a new user in MongoDB"""
-        # Encrypt password with bcrypt
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        
-        # Create user document
-        user_data = {
-            'email': email,
-            'name': name,
-            'password_hash': password_hash,
-            'is_admin': is_admin,
-            'created_at': datetime.utcnow()
-        }
-        
-        # Get MongoDB connection and insert user
-        db = cls.get_mongodb_connection()
-        result = db.users.insert_one(user_data)
-        
-        # Create a User object for Flask-Login
-        user = cls()
-        user.id = str(result.inserted_id)
-        user.email = email
-        user.name = name
-        user.is_admin = is_admin
-        
-        return user
+        try:
+            # Encrypt password with bcrypt
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            
+            # Create user document
+            user_data = {
+                'email': email,
+                'name': name,
+                'password_hash': password_hash,
+                'is_admin': is_admin,
+                'created_at': datetime.utcnow()
+            }
+            
+            # Get MongoDB connection and insert user
+            db = cls.get_mongodb_connection()
+            if db is None:
+                current_app.logger.error("Cannot create user: MongoDB connection failed")
+                return None
+                
+            result = db.users.insert_one(user_data)
+            
+            # Create a User object for Flask-Login
+            user = cls()
+            user.id = str(result.inserted_id)
+            user.email = email
+            user.name = name
+            user.is_admin = is_admin
+            
+            return user
+        except Exception as e:
+            current_app.logger.error(f"Error creating MongoDB user: {str(e)}")
+            return None
         
     @classmethod
     def find_by_email(cls, email):
         """Find a user by email in MongoDB"""
         # Get MongoDB connection and query user
         db = cls.get_mongodb_connection()
-        user_data = db.users.find_one({'email': email})
-        if user_data:
-            user = cls()
-            user.id = str(user_data['_id'])
-            user.email = user_data['email']
-            user.name = user_data['name']
-            user.is_admin = user_data.get('is_admin', False)
-            user.password_hash = user_data['password_hash']
-            return user
+        if db is None:
+            current_app.logger.error(f"Cannot find user by email: MongoDB connection failed")
+            return None
+            
+        try:
+            user_data = db.users.find_one({'email': email})
+            if user_data:
+                user = cls()
+                user.id = str(user_data['_id'])
+                user.email = user_data['email']
+                user.name = user_data['name']
+                user.is_admin = user_data.get('is_admin', False)
+                user.password_hash = user_data['password_hash']
+                return user
+        except Exception as e:
+            current_app.logger.error(f"Error finding user by email: {str(e)}")
         return None
         
     @classmethod

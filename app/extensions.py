@@ -6,6 +6,7 @@ from flask_admin import Admin
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
 from flask_jwt_extended import JWTManager
+import logging
 
 # Custom PyMongo class to handle SSL certificate verification
 class SecurePyMongo(PyMongo):
@@ -13,15 +14,24 @@ class SecurePyMongo(PyMongo):
         uri = app.config.get('MONGO_URI')
         if uri:
             app.config['MONGO_URI'] = uri
+            # Add logging for debugging connection issues
+            app.logger.info(f"Attempting to connect to MongoDB with URI: {uri[:15]}...")
+            
+            # Explicitly set SSL parameters in config
+            app.config['MONGO_TLS_ALLOW_INVALID_CERTIFICATES'] = True
+            
+        # Call parent init_app method
         super().init_app(app)
         
-        # Update the pymongo_client_factory to include SSL certificate settings
-        self.original_factory = self.cx
-        def secure_factory(*args, **kwargs):
-            # Force SSL certificate verification to be disabled for Atlas connections
-            kwargs['tlsAllowInvalidCertificates'] = True
-            return MongoClient(*args, **kwargs)
-        self.cx = secure_factory
+        # Test connection before returning
+        try:
+            if hasattr(self, 'db') and self.db is not None:
+                self.db.command('ping')
+                app.logger.info("MongoDB connection test successful")
+            else:
+                app.logger.error("MongoDB db attribute is not accessible")
+        except Exception as e:
+            app.logger.error(f"MongoDB connection test failed: {str(e)}")
 
 db = SQLAlchemy()
 login_manager = LoginManager()

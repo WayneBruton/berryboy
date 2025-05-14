@@ -52,22 +52,33 @@ def create_app():
     app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
     app.config['JWT_COOKIE_CSRF_PROTECT'] = True
     
-    # Initialize extensions with app
-    # Initialize extensions with app
+    # Initialize extensions with app - order matters!
     db.init_app(app)  # Initialize SQLAlchemy first
-    login_manager.init_app(app)  # Make sure login_manager is properly initialized
-    login_manager.login_view = 'auth.login'  # Set the login view
-    login_manager.refresh_view = 'auth.login'  # Set the refresh view to redirect users
-    login_manager.needs_refresh_message = 'Please log in again to confirm your identity'
-    login_manager.session_protection = 'strong'  # Provide better session protection
     
+    # Initialize MongoDB with better error handling
+    try:
+        app.logger.info(f"Initializing MongoDB with URI: {app.config.get('MONGO_URI')[:15]}...")
+        mongo.init_app(app)
+        # Test if MongoDB connection works
+        with app.app_context():
+            mongo.db.command('ping')
+            app.logger.info("MongoDB connection successful")
+    except Exception as e:
+        app.logger.error(f"MongoDB initialization error: {str(e)}")
+        app.logger.warning("Application will continue but MongoDB features may not work")
+    
+    # Initialize login manager
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    login_manager.refresh_view = 'auth.login'
+    login_manager.needs_refresh_message = 'Please log in again to confirm your identity'
+    login_manager.session_protection = 'strong'
+    
+    # Initialize remaining extensions
     admin.init_app(app)
     # Temporarily disable CSRF protection while we focus on MongoDB integration
     # csrf.init_app(app)
     app.config['WTF_CSRF_ENABLED'] = False  # Temporarily disable CSRF
-    mongo.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
     mail.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
