@@ -45,7 +45,7 @@
         
         <!-- Payment Options -->
         <div class="mt-3" id="payment-form-container">
-            <!-- PayFast Payment Form -->
+            
             <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" class="mb-3">
                 <input required type="hidden" name="cmd" value="_paynow">
                 <input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
@@ -61,66 +61,6 @@
                 </div>
             </form>
             </div>
-<!-- <div class="mt-3" id="payment-form-container" style="display: flex; align-items: center; justify-content: center;">
-            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post">
-<input required type="hidden" name="cmd" value="_paynow">
-<input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
-<input type="hidden" name="return_url" value="https://berryboy.onrender.com">
-<input type="hidden" name="cancel_url" value="https://berryboy.onrender.com">
-<input type="hidden" name="notify_url" value="https://berryboy.onrender.com">
-<input required type="hidden" name="amount" value="100.00">
-<input required type="hidden" name="item_name" maxlength="255" value="StockItem">
-<input type="hidden" name="item_description" maxlength="255" value="xvv">
-<table>
-<tr>
-<td colspan="2"><span style="font-weight: bold;">Shipping Address</span></td>
-</tr>
-<tr>
-<td><span style="color:red;">*</span>&nbsp;Line 1</td>
-<td><input type="text" name="line1" class="shipping" value=""></td>
-</tr>
-<tr>
-<td>Line 2</td>
-<td><input type="text" name="line2" class="shipping" value=""></td>
-</tr>
-<tr>
-<td><span style="color:red;">*</span>&nbsp;City</td>
-<td><input type="text" class="shipping" name="city" value=""></td>
-</tr>
-<tr>
-<td><span style="color:red;">*</span>&nbsp;Province</td>
-<td><input type="text" class="shipping" name="region" value=""></td>
-</tr>
-<tr>
-<td><span style="color:red;">*</span>&nbsp;Country</td>
-<td>
-<select name="country" class="shipping">
-<option value="" selected="selected">- Select -</option>
-<option value="South Africa">South Africa</option>
-<option value="">------------------------</option>
-<option value="Botswana">Botswana</option>
-<option value="Lesotho">Lesotho</option>
-<option value="Mauritius">Mauritius</option>
-<option value="Mozambique">Mozambique</option>
-<option value="Swaziland">Swaziland</option>
-<option value="Zimbabwe">Zimbabwe</option>
-</select>
-</td>
-</tr>
-<tr>
-<td><span style="color:red;">*</span>&nbsp;Postal Code</td>
-<td><input required type="hidden" name="amount" id="payfast-amount" value="0.00"></td>
-</tr>
-</table>
-<table>
-<tr>
-<td colspan=2 style="text-align: center; display: flex; align-items: center; justify-content: center;">
-<input type="image" src="https://my.payfast.io/images/buttons/PayNow/Dark-Large-PayNow.png" alt="Pay Now" title="Pay Now with Payfast">
-</td>
-</tr>
-</table>
-</form>
-</div> -->
             
             <!-- SnapScan Payment Button -->
             <div class="text-center mt-3">
