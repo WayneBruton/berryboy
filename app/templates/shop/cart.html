@@ -57,7 +57,7 @@
                 <input type="hidden" name="item_description" maxlength="255" value="Premium berries and berry products from The Berry Boy">
                 <div class="text-center">
                     <label for="payfast-amount" style="padding-bottom: 10px;">Payfast: </label><br />
-                    <input type="image" src="https://my.payfast.io/images/buttons/BuyNow/Primary-Large-BuyNow.png" alt="Buy Now" title="Buy Now with PayFast" class="mt-1">
+                    <input type="image" src="https://my.payfast.io/images/buttons/PayNow/Dark-Large-PayNow.png" alt="Buy Now" title="Buy Now with PayFast" class="mt-1">
                 </div>
             </form>
             </div>
@@ -189,14 +189,10 @@ function updateSnapScanUrl(event) {
     const randomPart = Math.floor(Math.random() * 1000);
     const orderId = `BB-${timestamp}-${randomPart}`;
     
-    // Get success and error URLs from the site
-    const successUrl = '{{ url_for("shop.payment_successful", _external=True) }}';
-    const cancelUrl = '{{ url_for("shop.payment_cancelled", _external=True) }}';
-    const errorUrl = '{{ url_for("shop.payment_failed", _external=True) }}';
-    
-    // Get the link and update the href with all required parameters
+    // Get the link and update the href with minimal required parameters
+    // Removed success/error/cancel URLs to keep URL under 256 chars
     const link = event.currentTarget;
-    link.href = `https://pos.snapscan.io/qr/PXMP45057?id=${orderId}&amount=${amountInCents}&strict=true&success_url=${encodeURIComponent(successUrl)}&error_url=${encodeURIComponent(errorUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+    link.href = `https://pos.snapscan.io/qr/PXMP45057?id=${orderId}&amount=${amountInCents}&strict=true`;
     
     // Continue with the click (no need to prevent default)
     console.log(`SnapScan URL updated: ${link.href}`);
