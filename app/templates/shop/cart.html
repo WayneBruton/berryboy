@@ -4,6 +4,19 @@
 <div class="container py-5">
     <h1 class="mb-4">Shopping Cart</h1>
     
+    <!-- Collection/Delivery Options -->
+    <div class="delivery-options mb-4 p-3 bg-light rounded">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="deliveryOption" id="collectionOption" value="collection" checked>
+            <label class="form-check-label" for="collectionOption">Collection</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="deliveryOption" id="deliveryOption" value="delivery" disabled>
+            <label class="form-check-label" for="deliveryOption">Delivery (R40)</label>
+            <small class="text-muted ms-2">(Available for orders over R100)</small>
+        </div>
+    </div>
+    
     <div class="cart-items mb-4">
         <div id="cart-items-container">
             <!-- Cart items will be dynamically loaded here -->
@@ -15,6 +28,15 @@
     </div>
     
     <div class="cart-summary mt-4">
+        <div class="d-flex justify-content-between">
+            <h4>Subtotal:</h4>
+            <h4 id="cart-subtotal">R0.00</h4>
+        </div>
+        <!-- Delivery fee row - always visible, but value depends on conditions -->
+        <div class="d-flex justify-content-between delivery-fee-row">
+            <h4>Delivery Fee:</h4>
+            <h4 id="delivery-fee">R40.00</h4>
+        </div>
         <div class="d-flex justify-content-between">
             <h4>Total:</h4>
             <h4 id="cart-total">R0.00</h4>
@@ -92,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to update the cart display
-    async function updateCartDisplay() {
+    async function updateCartDisplay(forceRecalculate = false) {
         // Clear current cart display
         cartContainer.innerHTML = '';
         
@@ -192,16 +214,75 @@ document.addEventListener('DOMContentLoaded', function() {
             tableBody.appendChild(row);
         });
         
-        // Update the total price display
-        cartTotal.textContent = `R${totalPrice.toFixed(2)}`;
+        // Get delivery option state
+        const deliveryOptionSelected = document.getElementById('deliveryOption').checked;
+        
+        // Update the subtotal display
+        document.getElementById('cart-subtotal').textContent = `R${totalPrice.toFixed(2)}`;
+        
+        // Update delivery options based on cart total
+        const deliveryOption = document.getElementById('deliveryOption');
+        const collectionOption = document.getElementById('collectionOption');
+        const deliveryFeeRow = document.querySelector('.delivery-fee-row');
+        
+        // Get the current delivery option state
+        let deliverySelected = deliveryOption.checked;
+        
+        // Enable/disable delivery option based on cart total
+        if (totalPrice >= 100) {
+            // Enable delivery option when order is R100+
+            deliveryOption.disabled = false;
+        } else {
+            // Disable delivery option when order is below R100
+            deliveryOption.disabled = true;
+            // If delivery was selected but now cart is below R100, switch to collection
+            if (deliverySelected) {
+                collectionOption.checked = true;
+                deliverySelected = false; // Update selected state
+            }
+        }
+        
+        // Calculate final total based on delivery option
+        let finalTotal = totalPrice;
+        
+        // Check current delivery selection state from the radio buttons
+        // We must get the current state directly from the DOM elements
+        const isDeliverySelected = document.getElementById('deliveryOption').checked;
+        const isOrderEligibleForDelivery = totalPrice >= 100;
+        const deliveryFeeDisplay = document.getElementById('delivery-fee');
+        
+        // For debugging (can be removed after testing)
+        console.log('Order total:', totalPrice);
+        console.log('Delivery selected:', isDeliverySelected);
+        console.log('Order eligible for delivery:', isOrderEligibleForDelivery);
+        
+        // Always reset any previous class changes
+        deliveryFeeRow.classList.remove('d-none');
+        
+        // Apply delivery fee only when both conditions are met: 
+        // 1. Delivery is selected AND 
+        // 2. Order is R100 or more
+        if (isDeliverySelected && isOrderEligibleForDelivery) {
+            // Show R40 delivery fee and add to total
+            deliveryFeeDisplay.textContent = 'R40.00';
+            finalTotal = totalPrice + 40; // Add R40 delivery fee
+        } else {
+            // Show R0 delivery fee
+            deliveryFeeDisplay.textContent = 'R0.00';
+            // No fee added to total
+            finalTotal = totalPrice;
+        }
+        
+        // Update the cart display
+        cartTotal.textContent = `R${finalTotal.toFixed(2)}`;
         
         // Update the hidden total value field and PayFast amount field
-        document.getElementById('cart-total-value').value = totalPrice.toFixed(2);
-        document.getElementById('payfast-amount').value = totalPrice.toFixed(2);
+        document.getElementById('cart-total-value').value = finalTotal.toFixed(2);
+        document.getElementById('payfast-amount').value = finalTotal.toFixed(2);
         
         // Show/hide the payment form based on cart contents
         const paymentFormContainer = document.getElementById('payment-form-container');
-        if (totalPrice <= 0) {
+        if (finalTotal <= 0) {
             paymentFormContainer.style.display = 'none';
         } else {
             paymentFormContainer.style.display = 'block';
@@ -304,6 +385,27 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Make sure cart count is always accurate
     window.updateCartCount();
+    
+    // Add event listeners for delivery option changes
+    document.querySelectorAll('input[name="deliveryOption"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Immediately update cart when delivery option changes
+            updateCartDisplay(true);
+        });
+    });
+    
+    // Initial check for delivery fee display on page load
+    setTimeout(function() {
+        // This ensures the delivery fee is correctly displayed after the page loads
+        const orderTotal = parseFloat(document.getElementById('cart-total-value').value);
+        const deliverySelected = document.getElementById('deliveryOption').checked;
+        
+        if (orderTotal >= 100 && deliverySelected) {
+            document.getElementById('delivery-fee').textContent = 'R40.00';
+        } else {
+            document.getElementById('delivery-fee').textContent = 'R0.00';
+        }
+    }, 500);
 });
 </script>
 {% endblock %}
