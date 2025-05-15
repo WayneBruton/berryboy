@@ -96,11 +96,16 @@ def product_detail(product_id):
 @shop.route('/cart')
 def cart():
     try:
+        # Check if user is authenticated via session
+        if not session.get('authenticated'):
+            flash('Please log in to view your cart', 'warning')
+            return redirect(url_for('auth.login'))
+            
         return render_template('shop/cart.html')
     except Exception as e:
         current_app.logger.error(f"Error in cart route: {str(e)}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return render_template('shop/cart.html', error="An error occurred")
+        return render_template('error.html', error="An error occurred accessing your cart")
 
 @shop.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -253,8 +258,11 @@ def remove_from_cart():
         return jsonify({'error': 'An error occurred removing product from cart'}), 500
 
 @shop.route('/checkout', methods=['GET', 'POST'])
-@login_required
 def checkout():
+    # Check if user is authenticated via session
+    if not session.get('authenticated'):
+        flash('Please log in to proceed to checkout', 'warning')
+        return redirect(url_for('auth.login'))
     try:
         if request.method == 'POST':
             # Create Stripe checkout session

@@ -12,10 +12,19 @@
         
         // Update all cart count elements
         document.querySelectorAll('.cart-count').forEach(function(el) {
-            el.textContent = itemCount;
+            // Check if user is authenticated via data attribute
+            const isAuthenticated = el.getAttribute('data-auth') === 'true';
+            
+            // Only show non-zero count for authenticated users
+            if (isAuthenticated) {
+                el.textContent = itemCount;
+            } else {
+                // Always show 0 for non-authenticated users
+                el.textContent = '0';
+            }
         });
         
-        console.log('Cart count updated to:', itemCount); // Debug info
+        console.log('Cart count updated to:', itemCount, 'Authentication status checked'); // Debug info
         return itemCount;
     }
     

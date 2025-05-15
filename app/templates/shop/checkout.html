@@ -2,19 +2,21 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">Shopping Cart</h1>
+    <h1 class="mb-4">Checkout</h1>
     
-    <!-- Collection/Delivery Options -->
+    <!-- Return to Cart Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('shop.cart') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Return to Cart
+        </a>
+    </div>
+    
+    <!-- Collection/Delivery Options (Read Only) -->
     <div class="delivery-options mb-4 p-3 bg-light rounded">
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="deliveryOption" id="collectionOption" value="collection" checked>
-            <label class="form-check-label" for="collectionOption">Collection</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="deliveryOption" id="deliveryOption" value="delivery" disabled>
-            <label class="form-check-label" for="deliveryOption">Delivery (R40)</label>
-            <small class="text-muted ms-2">(Available for orders over R100)</small>
-        </div>
+        <h5 class="mb-3">Delivery Method:</h5>
+        <div id="delivery-method-display" class="fw-bold">Collection</div>
+        <input type="hidden" name="deliveryOption" id="collectionOption" value="collection">
+        <input type="hidden" name="deliveryOption" id="deliveryOption" value="delivery" disabled>
     </div>
     
     <div class="cart-items mb-4">
@@ -43,21 +45,39 @@
             <input type="hidden" id="cart-total-value" value="0.00">
         </div>
         
-        <!-- Action Buttons -->
-        <div class="mt-4" id="cart-actions-container">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <a href="{{ url_for('shop.products') }}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-arrow-left me-2"></i> Continue Shopping
-                    </a>
+        <!-- Payment Options -->
+        <div class="mt-3" id="payment-form-container">
+            
+            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" class="mb-3">
+                <input required type="hidden" name="cmd" value="_paynow">
+                <input required type="hidden" name="receiver" pattern="[0-9]" value="13459781">
+                <input type="hidden" name="return_url" value="{{ url_for('shop.payment_successful', _external=True) }}">
+                <input type="hidden" name="cancel_url" value="{{ url_for('shop.payment_cancelled', _external=True) }}">
+                <input type="hidden" name="notify_url" value="https://berryboy.onrender.com/payment/notification">
+                <input required type="hidden" name="amount" id="payfast-amount" value="0.00">
+                <input required type="hidden" name="item_name" maxlength="255" value="The Berry Boy">
+                <input type="hidden" name="item_description" maxlength="255" value="Premium berries and berry products from The Berry Boy">
+                <div class="text-center">
+                    <label for="payfast-amount" style="padding-bottom: 10px;">Payfast: </label><br />
+                    <input type="image" src="https://my.payfast.io/images/buttons/PayNow/Dark-Large-PayNow.png" alt="Buy Now" title="Buy Now with PayFast" class="mt-1">
                 </div>
-                <div class="col-md-6 mb-3">
-                    <a href="{{ url_for('shop.checkout') }}" class="btn btn-primary w-100" id="proceed-to-checkout-btn">
-                        Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
+            </form>
+            </div>
+            
+            <!-- SnapScan Payment Button -->
+            <div class="text-center mt-3">
+                <!-- <label style="padding-bottom: 10px;"> </label> -->
+                <div>
+                    <label for="payfast-amount" style="padding-bottom: 10px;">SnapScan: </label><br />
+                    <a id="snapscan-link" href="https://pos.snapscan.io/qr/PXMP45057?id=loading&amount=0&strict=true" 
+                       class="btn btn-success" 
+                       target="_blank" 
+                       style="background-color: blue; border-color: blue; border-radius: 25px; width: 174px; height: 43px; display: inline-flex; align-items: center; justify-content: center;" 
+                       onclick="updateSnapScanUrl(event)">
+                        <img src="https://www.snapscan.co.za/images/header-logo.svg" alt="Buy Now" style="height: 20px; margin-right: 5px;"> 
                     </a>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
@@ -122,6 +142,25 @@ function updateSnapScanUrl(event) {
 
 // Cart display functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // FIRST: Load delivery option from localStorage at the start
+    const savedDeliveryOption = localStorage.getItem('deliveryOption');
+    const deliveryMethodDisplay = document.getElementById('delivery-method-display');
+    
+    // Update the delivery method display text
+    if (savedDeliveryOption === 'delivery') {
+        deliveryMethodDisplay.textContent = 'Delivery (R40.00)';
+        console.log('Setting delivery method display to Delivery');
+        // Set hidden input values for form submission
+        document.getElementById('deliveryOption').disabled = false;
+        document.getElementById('collectionOption').disabled = true;
+    } else {
+        deliveryMethodDisplay.textContent = 'Collection';
+        console.log('Setting delivery method display to Collection');
+        // Set hidden input values for form submission
+        document.getElementById('deliveryOption').disabled = true;
+        document.getElementById('collectionOption').disabled = false;
+    }
+    
     // Get cart items from localStorage
     const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
     const cartContainer = document.getElementById('cart-items-container');
@@ -318,14 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Note: SnapScan URL is now updated on-click via the updateSnapScanUrl function
         
-        // Enable/disable the checkout button based on cart contents
-        const checkoutButton = document.getElementById('proceed-to-checkout-btn');
+        // Show/hide the payment form based on cart contents
+        const paymentFormContainer = document.getElementById('payment-form-container');
         if (finalTotal <= 0) {
-            checkoutButton.classList.add('disabled');
-            checkoutButton.setAttribute('aria-disabled', 'true');
+            paymentFormContainer.style.display = 'none';
         } else {
-            checkoutButton.classList.remove('disabled');
-            checkoutButton.removeAttribute('aria-disabled');
+            paymentFormContainer.style.display = 'block';
         }
         
         // Add event listeners for quantity and remove buttons
@@ -437,52 +474,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Load delivery option from localStorage on page load
-    // We'll do this AFTER updateCartDisplay() has run once to ensure delivery option
-    // is enabled properly if order is ≥ R100
+    // Delivery option loading moved to the beginning of the script for proper initialization
+    
+    // Enhanced delivery option handling for checkout page
     setTimeout(function() {
-        const savedDeliveryOption = localStorage.getItem('deliveryOption');
-        console.log('Loading saved delivery option from localStorage:', savedDeliveryOption);
+        // Check cart total 
+        const orderTotal = parseFloat(document.getElementById('cart-subtotal').textContent.replace('R', '')) || 0;
+        console.log('Cart subtotal detected:', orderTotal);
         
-        // Get the current cart total to check if delivery is available
-        const subtotal = parseFloat(document.getElementById('cart-subtotal').textContent.replace('R', '')) || 0;
-        console.log('Current subtotal:', subtotal);
+        const deliveryMethodDisplay = document.getElementById('delivery-method-display');
         
-        const deliveryOption = document.getElementById('deliveryOption');
-        const collectionOption = document.getElementById('collectionOption');
-        
-        // First check if order is eligible for delivery
-        if (subtotal >= 100) {
-            // Enable the delivery option
-            deliveryOption.disabled = false;
-            
-            // Then check if delivery was previously selected
-            if (savedDeliveryOption === 'delivery') {
-                deliveryOption.checked = true;
-                collectionOption.checked = false;
-                console.log('Setting delivery option to checked');
+        // Enable delivery if order is above R100
+        if (orderTotal >= 100) {
+            // Check if delivery was previously selected
+            if (localStorage.getItem('deliveryOption') === 'delivery') {
+                // Update display text
+                deliveryMethodDisplay.textContent = 'Delivery (R40.00)';
+                document.getElementById('deliveryOption').disabled = false;
+                document.getElementById('collectionOption').disabled = true;
                 
-                // Trigger change event to update totals
-                const event = new Event('change');
-                deliveryOption.dispatchEvent(event);
+                // Update fee display
+                document.getElementById('delivery-fee').textContent = 'R40.00';
+                
+                // Add delivery fee to total
+                const subtotal = parseFloat(document.getElementById('cart-subtotal').textContent.replace('R', '')) || 0;
+                const total = subtotal + 40;
+                document.getElementById('cart-total').textContent = `R${total.toFixed(2)}`;
+                document.getElementById('cart-total-value').value = total.toFixed(2);
+                document.getElementById('payfast-amount').value = total.toFixed(2);
+            } else {
+                // Collection selected
+                deliveryMethodDisplay.textContent = 'Collection';
+                document.getElementById('deliveryOption').disabled = true;
+                document.getElementById('collectionOption').disabled = false;
+                document.getElementById('delivery-fee').textContent = 'R0.00';
             }
         } else {
-            // Order not eligible for delivery
-            deliveryOption.disabled = true;
-            collectionOption.checked = true;
-        }
-    }, 300);
-    
-    // Initial check for delivery fee display on page load
-    setTimeout(function() {
-        // This ensures the delivery fee is correctly displayed after the page loads
-        const orderTotal = parseFloat(document.getElementById('cart-total-value').value);
-        const deliverySelected = document.getElementById('deliveryOption').checked;
-        
-        if (orderTotal >= 100 && deliverySelected) {
-            document.getElementById('delivery-fee').textContent = 'R40.00';
-        } else {
+            // Order below R100, only collection available
+            deliveryMethodDisplay.textContent = 'Collection';
+            document.getElementById('deliveryOption').disabled = true;
+            document.getElementById('collectionOption').disabled = false;
             document.getElementById('delivery-fee').textContent = 'R0.00';
+            console.log('Only collection available, order below R100');
         }
     }, 500);
     
