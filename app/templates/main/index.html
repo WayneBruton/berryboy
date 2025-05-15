@@ -7,7 +7,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1 class="display-4 fw-bold mb-4">Fresh from the Farm</h1>
-                <p class="lead mb-4">Discover our handpicked selection of the freshest berries delivered right to your door!</p>
+                <p class="lead mb-4">to your door!</p>
                 <div class="d-flex gap-3">
                     <a href="{{ url_for('shop.products') }}" class="btn btn-primary btn-lg">Buy Now</a>
                     <!-- <a href="#featured-products" class="btn btn-primary btn-lg">Learn More</a> -->
@@ -28,7 +28,7 @@
                         <img src="{{ url_for('static', filename='img/products/strawberries.jpg') }}" alt="Fresh Berries">
                         <div class="category-overlay">
                             <h3>Fresh Berries</h3>
-                            <p>Handpicked daily for maximum freshness. Our berries go straight from farm to your table.</p>
+                            <!-- <p>Handpicked daily for maximum freshness. Our berries go straight from farm to your table.</p> -->
                             <button class="btn btn-outline-light">Shop Fresh</button>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                         <img src="{{ url_for('static', filename='img/products/frozen-berries.jpg') }}" alt="Frozen Berries">
                         <div class="category-overlay">
                             <h3>Frozen Berries</h3>
-                            <p>Flash-frozen at peak ripeness to lock in nutrients and flavor. Perfect for smoothies and baking.</p>
+                            <!-- <p>Flash-frozen at peak ripeness to lock in nutrients and flavor. Perfect for smoothies and baking.</p> -->
                             <button class="btn btn-outline-light">Shop Frozen</button>
                         </div>
                     </div>
@@ -51,8 +51,8 @@
                     <div class="category-card">
                         <img src="{{ url_for('static', filename='img/products/berry-jam.jpg') }}" alt="Berry Products">
                         <div class="category-overlay">
-                            <h3>Berry Products</h3>
-                            <p>Artisanal jams, preserves, and berry-based treats made with love and natural ingredients.</p>
+                            <h3>And...</h3>
+                            <!-- <p>Artisanal jams, preserves, and berry-based treats made with love and natural ingredients.</p> -->
                             <button class="btn btn-outline-light">Shop Products</button>
                         </div>
                     </div>
@@ -126,7 +126,7 @@
 <!-- Why Choose Us -->
 <section class="why-choose-us py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Why Choose BerryBoy?</h2>
+        <h2 class="text-center mb-5">Why Choose theBerryBoy?</h2>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="feature-card text-center">
@@ -252,18 +252,27 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+    :root {
+        --hero-bg-image: url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}');
+    }
+    
     .hero-section {
         margin-top: -2rem;
     }
+    
     .hero-slide {
         background-size: cover;
         background-position: center;
         min-height: 75vh;
         position: relative;
     }
+    
     .hero-bg {
-        background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}');
+        background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), var(--hero-bg-image);
+        background-size: cover;
+        background-position: center;
     }
+    
     .hero-slide::before {
         content: "";
         position: absolute;
