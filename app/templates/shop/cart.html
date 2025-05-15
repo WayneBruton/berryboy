@@ -1,19 +1,96 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Debug information about user session -->
+{% if session.authenticated %}
+<div id="user-session-data" class="d-none" data-user-id="{{ session.user_id }}" data-auth="true"></div>
+{% else %}
+<div id="user-session-data" class="d-none" data-auth="false"></div>
+{% endif %}
+
 <div class="container py-5">
     <h1 class="mb-4">Shopping Cart</h1>
     
     <!-- Collection/Delivery Options -->
     <div class="delivery-options mb-4 p-3 bg-light rounded">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="deliveryOption" id="collectionOption" value="collection" checked>
+            <input class="form-check-input" type="radio" name="deliveryOption" id="collectionOption" value="collection" checked onclick="document.getElementById('delivery-info-container').style.display='none';">
             <label class="form-check-label" for="collectionOption">Collection</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="deliveryOption" id="deliveryOption" value="delivery" disabled>
+            <input class="form-check-input" type="radio" name="deliveryOption" id="deliveryOption" value="delivery" disabled onclick="document.getElementById('delivery-info-container').style.display='block';">
             <label class="form-check-label" for="deliveryOption">Delivery (R40)</label>
             <small class="text-muted ms-2">(Available for orders over R100)</small>
+        </div>
+        
+        <!-- Simple script to initialize form visibility -->
+        <script>
+        // Make sure form is hidden initially if collection is selected
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force show the container - useful for debugging
+            console.log('Checking delivery selection...');
+            var deliveryOption = document.getElementById('deliveryOption');
+            var deliveryContainer = document.getElementById('delivery-info-container');
+            
+            if (deliveryOption && deliveryContainer) {
+                console.log('Delivery option checked:', deliveryOption.checked);
+                deliveryContainer.style.display = deliveryOption.checked ? 'block' : 'none';
+            } else {
+                console.error('Delivery elements not found!');
+            }
+        });
+        </script>
+        
+        <!-- Delivery Information Form - Only shown when delivery is selected -->
+        <div id="delivery-info-container" class="mt-3 p-3 border rounded delivery-info" style="display: none;">
+            <h5 class="mb-3">Delivery Information</h5>
+            <form id="delivery-info-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="delivery-name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="delivery-name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="delivery-phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="delivery-phone" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="delivery-address" class="form-label">Street Address</label>
+                        <input type="text" class="form-control" id="delivery-address" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="delivery-suburb" class="form-label">Suburb</label>
+                        <input type="text" class="form-control" id="delivery-suburb" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="delivery-city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="delivery-city" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="delivery-postal-code" class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" id="delivery-postal-code" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="delivery-instructions" class="form-label">Delivery Instructions (Optional)</label>
+                        <textarea class="form-control" id="delivery-instructions" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="save-delivery-info-btn">
+                            <i class="fas fa-save me-2"></i> Save Delivery Information
+                        </button>
+                        <div id="delivery-info-feedback" class="mt-2"></div>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} mt-2">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     
@@ -473,7 +550,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <!-- Simple, direct DOM-based cart script that correctly calculates totals -->
+<script src="{{ url_for('static', filename='js/berry-cart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cart-utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/cart-working.js') }}"></script>
+<script src="{{ url_for('static', filename='js/show-delivery-form.js') }}"></script>
+<!-- New simplified delivery info script that directly saves to MongoDB -->
+<script src="{{ url_for('static', filename='js/simple-delivery.js') }}"></script>
 
 <!-- Simple Debug Form for Cart Data -->
 {% if config.DEBUG %}

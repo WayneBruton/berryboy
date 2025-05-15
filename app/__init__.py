@@ -99,6 +99,10 @@ def create_app():
     from app.routes.pages import pages
     from app.routes.cart_api import cart_api
     from app.routes.direct_cart_save import direct_cart
+    from app.routes.user_api import user_api
+    from app.routes.direct_delivery_save import direct_delivery
+    from app.routes.delivery import delivery
+    from app.routes.simple_delivery import simple_delivery
     
     app.register_blueprint(main)
     app.register_blueprint(auth)
@@ -108,6 +112,10 @@ def create_app():
     app.register_blueprint(pages)
     app.register_blueprint(cart_api)
     app.register_blueprint(direct_cart)
+    app.register_blueprint(user_api)
+    app.register_blueprint(direct_delivery)
+    app.register_blueprint(delivery)
+    app.register_blueprint(simple_delivery)
     
     # Add template context processor for current year
     @app.context_processor
