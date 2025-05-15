@@ -145,19 +145,29 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     display: inline-block;
     padding: 0.5rem;
+    margin-right: 5px;
+}
+
+.cart-icon i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    position: relative;
+    left: -5px;
 }
 
 .cart-count {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 5px;
+    right: -10px;
     background-color: var(--primary-color);
     color: white;
     border-radius: 50%;
-    padding: 0.25rem 0.5rem;
+    padding: 0.15rem 0.4rem;
     font-size: 0.75rem;
-    min-width: 20px;
+    min-width: 18px;
     text-align: center;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Product Cards */
