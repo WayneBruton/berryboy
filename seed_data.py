@@ -9,6 +9,7 @@ def seed_data():
         # Create categories
         categories = [
             Category(name='Fresh Berries', description='Freshly picked, seasonal berries'),
+            Category(name='Fresh Fruit', description='Freshly picked, seasonal fruit'),
             Category(name='Frozen Berries', description='Flash-frozen berries, perfect for smoothies'),
             Category(name='Berry Products', description='Jams, juices, and other berry-based products')
         ]
