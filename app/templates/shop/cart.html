@@ -122,8 +122,8 @@ function updateSnapScanUrl(event) {
 
 // Cart display functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Get cart items from localStorage
-    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    // Get cart items using BerryCart
+    const cartItems = BerryCart.getItems();
     const cartContainer = document.getElementById('cart-items-container');
     const emptyCartMessage = document.getElementById('empty-cart-message');
     const cartTotal = document.getElementById('cart-total');
@@ -328,23 +328,30 @@ document.addEventListener('DOMContentLoaded', function() {
             checkoutButton.removeAttribute('aria-disabled');
         }
         
+        // Helper function for direct cart count updates
+        function updateCartCountDirectly() {
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cartItems.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                const isAuth = el.getAttribute('data-auth') === 'true';
+                el.textContent = isAuth ? itemCount : '0';
+            });
+        }
+
         // Add event listeners for quantity and remove buttons
         document.querySelectorAll('.decrease-quantity').forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const item = cartItems.find(i => i.id == id);
                 if (item && item.quantity > 1) {
-                    // Use the global cart utility to update quantity
-                    window.cartOperations.updateQuantity(id, item.quantity - 1)
-                        .catch(error => console.error('Error updating quantity:', error));
-                    
-                    // Update local cart
+                    // Directly update cart in localStorage
                     item.quantity--;
                     localStorage.setItem('cart', JSON.stringify(cartItems));
                     
-                    // Update cart count directly
+                    // Update cart count
                     updateCartCountDirectly();
                     
+                    // Refresh the display
                     updateCartDisplay();
                 }
             });
@@ -355,43 +362,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = this.dataset.id;
                 const item = cartItems.find(i => i.id == id);
                 if (item) {
-                    // Use the global cart utility to update quantity
-                    window.cartOperations.updateQuantity(id, item.quantity + 1)
-                        .catch(error => console.error('Error updating quantity:', error));
-                    
-                    // Update local cart
+                    // Directly update cart in localStorage
                     item.quantity++;
                     localStorage.setItem('cart', JSON.stringify(cartItems));
                     
-                    // Update cart count directly
+                    // Update cart count
                     updateCartCountDirectly();
                     
-                    updateCartDisplay();
-                }
-            });
-        });
-        
-        document.querySelectorAll('.item-quantity').forEach(input => {
-            input.addEventListener('change', function() {
-                const id = this.dataset.id;
-                const newQuantity = parseInt(this.value);
-                if (newQuantity < 1) this.value = 1;
-                
-                const item = cartItems.find(i => i.id == id);
-                if (item) {
-                    const finalQuantity = Math.max(1, newQuantity);
-                    
-                    // Use the global cart utility to update quantity
-                    window.cartOperations.updateQuantity(id, finalQuantity)
-                        .catch(error => console.error('Error updating quantity:', error));
-                    
-                    // Update local cart
-                    item.quantity = finalQuantity;
-                    localStorage.setItem('cart', JSON.stringify(cartItems));
-                    
-                    // Update cart count directly
-                    updateCartCountDirectly();
-                    
+                    // Refresh the display
                     updateCartDisplay();
                 }
             });
@@ -402,22 +380,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = this.dataset.id;
                 const itemIndex = cartItems.findIndex(i => i.id == id);
                 if (itemIndex !== -1) {
-                    // Use the global cart utility to remove item
-                    window.cartOperations.removeItem(id)
-                        .catch(error => console.error('Error removing item:', error));
-                    
-                    // Then update client-side cart
+                    // Directly update cart in localStorage
                     cartItems.splice(itemIndex, 1);
                     localStorage.setItem('cart', JSON.stringify(cartItems));
                     
-                    // Update the cart count directly
+                    // Update cart count
                     updateCartCountDirectly();
                     
-                    // Update the display
+                    // Refresh the display
                     updateCartDisplay();
                 }
             });
         });
+        
+        // Old handlers removed - now using event delegation for better performance and reliability
     }
     
     // Initialize the cart display
@@ -489,4 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Note: testPaymentStatus function moved to global scope
 });
 </script>
+<!-- Simple, direct DOM-based cart script that correctly calculates totals -->
+<script src="{{ url_for('static', filename='js/cart-working.js') }}"></script>
 {% endblock %}

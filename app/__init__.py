@@ -97,6 +97,7 @@ def create_app():
     from app.routes.admin import admin_blueprint
     from app.routes.blog import blog
     from app.routes.pages import pages
+    from app.routes.cart_api import cart_api
     
     app.register_blueprint(main)
     app.register_blueprint(auth)
@@ -104,6 +105,7 @@ def create_app():
     app.register_blueprint(admin_blueprint)
     app.register_blueprint(blog)
     app.register_blueprint(pages)
+    app.register_blueprint(cart_api)
     
     # Add template context processor for current year
     @app.context_processor

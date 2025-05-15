@@ -199,7 +199,19 @@
                 window.updateCartIcon(data.count);
             })
             .catch(error => console.error('Error fetching cart count:', error));
+        
+        // Initialize cart count
+        if (typeof updateCartCount === 'function') {
+            updateCartCount();
+        }
+        
+        // Initialize user-specific cart functionality
+        if (typeof initUserCart === 'function') {
+            initUserCart();
+        }
     });
     </script>
+    <!-- Cart functionality scripts -->
+    <script src="{{ url_for('static', filename='js/berry-cart.js') }}"></script>
 </body>
 </html>
