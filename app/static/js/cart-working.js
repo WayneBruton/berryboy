@@ -2,8 +2,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Cart Working script loaded');
 
-    // Wait for cart to fully initialize
-    setTimeout(() => {
+    // Check if we should load cart from MongoDB
+    const isLoggedIn = document.querySelector('[data-auth="true"]') !== null;
+    if (isLoggedIn) {
+        // Try to load cart from MongoDB first
+        loadCartFromMongoDB().then(() => {
+            initializeCart();
+        }).catch(error => {
+            console.error('Error loading cart from MongoDB:', error);
+            initializeCart();
+        });
+    } else {
+        // Just initialize from localStorage
+        initializeCart();
+    }
+    
+    // Initialize the cart after loading data
+    function initializeCart() {
         // Initialize delivery option from localStorage if present
         initializeDeliveryOption();
         
@@ -12,7 +27,39 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Do an initial update of the totals
         updateAllTotals();
-    }, 1000);
+    }
+    
+    // Function to load cart from MongoDB for logged-in users
+    function loadCartFromMongoDB() {
+        return new Promise((resolve, reject) => {
+            console.log('Trying to load cart from MongoDB...');
+            
+            fetch('/api/cart')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to load cart from MongoDB');
+                })
+                .then(data => {
+                    console.log('Loaded cart data from MongoDB:', data);
+                    
+                    if (data.cart && Array.isArray(data.cart)) {
+                        // Only update localStorage if we received valid cart data
+                        if (data.cart.length > 0) {
+                            localStorage.setItem('cart', JSON.stringify(data.cart));
+                            console.log('Updated localStorage with MongoDB cart data');
+                        }
+                    }
+                    
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('Error loading cart from MongoDB:', error);
+                    reject(error);
+                });
+        });
+    }
     
     // Set initial delivery option based on localStorage
     function initializeDeliveryOption() {
@@ -302,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Update cart item quantity in localStorage
+    // Update cart item quantity in localStorage and MongoDB if logged in
     function updateCartItemQuantity(productId, quantity) {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const item = cart.find(i => i.id == productId);
@@ -313,10 +360,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update cart count in header
             updateCartCount();
+            
+            // Sync with MongoDB if user is logged in
+            syncCartWithMongoDB();
         }
     }
     
-    // Remove item from cart in localStorage
+    // Remove item from cart in localStorage and MongoDB if logged in
     function removeCartItem(productId) {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const updatedCart = cart.filter(i => i.id != productId);
@@ -324,6 +374,48 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update cart count in header
         updateCartCount();
+        
+        // Sync with MongoDB if user is logged in
+        syncCartWithMongoDB();
+    }
+    
+    // Function to sync cart with MongoDB for logged-in users
+    function syncCartWithMongoDB() {
+        // Check if user is logged in by looking for auth elements
+        const authElement = document.querySelector('[data-auth="true"]');
+        const isLoggedIn = authElement !== null;
+        console.log('Auth element found:', authElement);
+        console.log('Is user logged in?', isLoggedIn);
+        
+        if (isLoggedIn) {
+            console.log('User is logged in, syncing cart with MongoDB...');
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Send cart data to server
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // CSRF token omitted as it's disabled on the server
+                },
+                body: JSON.stringify({ items: cart })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Cart synced with MongoDB successfully');
+                    return response.json();
+                }
+                throw new Error('Failed to sync cart with MongoDB');
+            })
+            .then(data => {
+                console.log('Server response:', data);
+            })
+            .catch(error => {
+                console.error('Error syncing cart with MongoDB:', error);
+            });
+        } else {
+            console.log('User not logged in, skipping MongoDB sync');
+        }
     }
     
     // Update cart count in header
