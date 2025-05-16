@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <h1>Direct Image Test</h1>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2>Berrimarc1.jpg - Direct Image</h2>
+            <img src="{{ url_for('static', filename='img/hero/berrimarc1.jpg') }}" alt="Berrimarc1" class="img-fluid border">
+            <p>Path: /static/img/hero/berrimarc1.jpg</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2>Hero-bg.jpg - Direct Image</h2>
+            <img src="{{ url_for('static', filename='img/hero/hero-bg.jpg') }}" alt="Hero BG" class="img-fluid border">
+            <p>Path: /static/img/hero/hero-bg.jpg</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

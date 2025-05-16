@@ -8,6 +8,11 @@ import traceback
 
 main = Blueprint('main', __name__)
 
+@main.route('/image-test')
+def image_test():
+    """Test page for direct image testing"""
+    return render_template('main/image_direct_test.html')
+
 @main.route('/')
 def index():
     try:

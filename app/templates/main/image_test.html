@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Image Test{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Image Test Page</h1>
+    <p>This page tests if images are loading correctly</p>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>1. Direct Image Tag (Static URL)</h3>
+            <img src="{{ url_for('static', filename='img/hero/hero-bg.jpg') }}" 
+                 class="img-fluid border" 
+                 alt="Hero Background">
+            <p class="mt-2">URL: <code>{{ url_for('static', filename='img/hero/hero-bg.jpg') }}</code></p>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>2. Background Image Test (CSS)</h3>
+            <div style="height: 200px; background-image: url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}'); background-size: cover;" class="border"></div>
+            <p class="mt-2">Using inline CSS background</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>3. Alternative Logo Image Test</h3>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                 class="img-fluid border" 
+                 alt="Logo">
+            <p class="mt-2">Testing if other images work</p>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>4. External Image Test</h3>
+            <img src="https://via.placeholder.com/400x200" 
+                 class="img-fluid border" 
+                 alt="Placeholder">
+            <p class="mt-2">Testing external image loading</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
