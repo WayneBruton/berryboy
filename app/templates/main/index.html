@@ -6,10 +6,10 @@
     <div class="hero-slide hero-bg">
         <div class="container">
             <div class="hero-content">
-                <h1 class="display-4 fw-bold mb-4">Fresh from the Farm</h1>
-                <p class="lead mb-4">to your door!</p>
+                <h1 class="display-3 fw-bold mb-4 text-white text-shadow">Fresh from the Farm</h1>
+                <p class="lead mb-4 fs-2 text-white text-shadow">to your door!</p>
                 <div class="d-flex gap-3">
-                    <a href="{{ url_for('shop.products') }}" class="btn btn-primary btn-lg">Buy Now</a>
+                    <a href="{{ url_for('shop.products') }}" class="btn btn-danger btn-lg px-4 py-3 fw-bold">Shop Now</a>
                     <!-- <a href="#featured-products" class="btn btn-primary btn-lg">Learn More</a> -->
                 </div>
             </div>
@@ -263,14 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
     .hero-slide {
         background-size: cover;
         background-position: center;
-        min-height: 75vh;
+        min-height: 85vh;
         position: relative;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
     
     .hero-bg {
-        background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), var(--hero-bg-image);
+        background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--hero-bg-image);
         background-size: cover;
         background-position: center;
+        border-bottom: 5px solid #e74c3c;
+        position: relative;
+        z-index: 1;
     }
     
     .hero-slide::before {
@@ -280,7 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     }
     .category-card {
         position: relative;
@@ -315,6 +323,16 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 10px;
         background: white;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .hero-content {
+        padding: 8rem 0;
+        max-width: 650px;
+        animation: fadeIn 1.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 {% endblock %}

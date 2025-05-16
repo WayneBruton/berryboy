@@ -44,7 +44,8 @@ def get_delivery_info():
             user = mongodb.users.find_one({'_id': user_id})
             if not user:
                 current_app.logger.warning(f"User not found with ID: {user_id}")
-                return jsonify({'error': 'User not found'}), 404
+                # Return empty delivery_info instead of an error
+                return jsonify({'success': True, 'delivery_info': {}})
             
             # Return delivery info if it exists
             delivery_info = user.get('delivery_info', {})
