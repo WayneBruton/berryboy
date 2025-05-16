@@ -76,18 +76,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             instructions: instructionsField
                         });
                         
-                        // If info is empty (no keys), clear all fields
+                        // If info is empty (no keys), only clear fields if they are all empty
                         if (Object.keys(info).length === 0) {
-                            if (nameField) nameField.value = '';
-                            if (phoneField) phoneField.value = '';
-                            if (addressField) addressField.value = '';
-                            if (suburbField) suburbField.value = '';
-                            if (cityField) cityField.value = '';
-                            if (postalCodeField) postalCodeField.value = '';
-                            if (instructionsField) instructionsField.value = '';
-                            feedbackDiv.innerHTML = '<div class="alert alert-warning">No saved delivery information found.</div>';
-                            setTimeout(function() { feedbackDiv.innerHTML = ''; }, 3000);
-                            console.log('Direct Delivery Loader: Cleared all delivery form fields (no info found)');
+                            const allEmpty = [nameField, phoneField, addressField, suburbField, cityField, postalCodeField, instructionsField].every(f => !f || f.value.trim() === '');
+                            if (allEmpty) {
+                                if (nameField) nameField.value = '';
+                                if (phoneField) phoneField.value = '';
+                                if (addressField) addressField.value = '';
+                                if (suburbField) suburbField.value = '';
+                                if (cityField) cityField.value = '';
+                                if (postalCodeField) postalCodeField.value = '';
+                                if (instructionsField) instructionsField.value = '';
+                                feedbackDiv.innerHTML = '<div class="alert alert-warning">No saved delivery information found.</div>';
+                                setTimeout(function() { feedbackDiv.innerHTML = ''; }, 3000);
+                                console.log('Direct Delivery Loader: Cleared all delivery form fields (no info found)');
+                            } else {
+                                console.log('Direct Delivery Loader: Fields already have values, not clearing');
+                            }
                             return;
                         }
                         
