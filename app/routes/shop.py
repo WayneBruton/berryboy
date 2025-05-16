@@ -101,7 +101,23 @@ def cart():
             flash('Please log in to view your cart', 'warning')
             return redirect(url_for('auth.login'))
             
-        return render_template('shop/cart.html')
+        # Fetch delivery_info from DB
+        user_id = session.get('user_id')
+        delivery_info = {}
+        if user_id:
+            from app.models.user import User
+            mongodb = User.get_mongodb_connection()
+            if mongodb is not None:
+                from bson.objectid import ObjectId
+                if not isinstance(user_id, ObjectId) and ObjectId.is_valid(user_id):
+                    user_id = ObjectId(user_id)
+                user = mongodb.users.find_one({'_id': user_id})
+                if user:
+                    delivery_info = user.get('delivery_info', {})
+            else:
+                current_app.logger.error("MongoDB connection is None in /cart route")
+        print('DELIVERY INFO PASSED TO TEMPLATE:', delivery_info)
+        return render_template('shop/cart.html', delivery_info=delivery_info)
     except Exception as e:
         current_app.logger.error(f"Error in cart route: {str(e)}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
