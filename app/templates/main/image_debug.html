@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <h1>Debug Image Loading</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <h3>Test 1: berrimarc1.jpg</h3>
+            <img src="{{ url_for('static', filename='img/hero/berrimarc1.jpg') }}" class="img-fluid border" alt="Test 1">
+            <p class="mt-2">Direct image tag with berrimarc1.jpg</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <h3>Test 2: hero-bg.jpg</h3>
+            <img src="{{ url_for('static', filename='img/hero/hero-bg.jpg') }}" class="img-fluid border" alt="Test 2">
+            <p class="mt-2">Direct image tag with hero-bg.jpg</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <h3>Test 3: hero-bg1.jpg</h3>
+            <img src="{{ url_for('static', filename='img/hero/hero-bg1.jpg') }}" class="img-fluid border" alt="Test 3">
+            <p class="mt-2">Direct image tag with hero-bg1.jpg</p>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <div class="row mt-4">
+        <div class="col-12 mb-4">
+            <h3>Test 4: CSS Background with berrimarc1.jpg</h3>
+            <div style="height: 200px; background-image: url('{{ url_for('static', filename='img/hero/berrimarc1.jpg') }}'); background-size: cover;" class="border"></div>
+            <p class="mt-2">Inline CSS background with berrimarc1.jpg</p>
+        </div>
+        
+        <div class="col-12 mb-4">
+            <h3>Test 5: CSS Background with hero-bg.jpg</h3>
+            <div style="height: 200px; background-image: url('{{ url_for('static', filename='img/hero/hero-bg.jpg') }}'); background-size: cover;" class="border"></div>
+            <p class="mt-2">Inline CSS background with hero-bg.jpg</p>
+        </div>
+        
+        <div class="col-12 mb-4">
+            <h3>Test 6: CSS Background with hero-bg1.jpg</h3>
+            <div style="height: 200px; background-image: url('{{ url_for('static', filename='img/hero/hero-bg1.jpg') }}'); background-size: cover;" class="border"></div>
+            <p class="mt-2">Inline CSS background with hero-bg1.jpg</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

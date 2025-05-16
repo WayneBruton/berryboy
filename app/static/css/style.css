@@ -71,7 +71,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Hero background image */
 .hero-bg {
-    background-image: url('/static/img/hero/berrimarc1.jpg');
+    background-image: url('../img/hero/berrimarc1.jpg');
 }
 
 .hero-slide::before {
@@ -81,7 +81,7 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
     z-index: 1;
 }
 

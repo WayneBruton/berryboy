@@ -12,6 +12,11 @@ main = Blueprint('main', __name__)
 def image_test():
     """Test page for direct image testing"""
     return render_template('main/image_direct_test.html')
+    
+@main.route('/image-debug')
+def image_debug():
+    """Debug page for testing all image variants"""
+    return render_template('main/image_debug.html')
 
 @main.route('/')
 def index():
